@@ -1,7 +1,7 @@
+import AppRoutes from './routes/AppRoutes.jsx';
+
 function App() {
-  return (
-    <h1>Employee Management System</h1>
-  );
+  return <AppRoutes />;
 }
 
 export default App;
