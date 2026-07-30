@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import EmployeeFilters from '../../components/employees/EmployeeFilters.jsx';
 import EmployeeDetailsModal from '../../components/employees/EmployeeDetailsModal.jsx';
@@ -11,6 +11,8 @@ import { employees as employeesData } from '../../data/employeesData.js';
 
 const Employees = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({ department: 'All Departments', designation: 'All Designations', status: 'All Statuses' });
   const [formMode, setFormMode] = useState('add');
   const [formEmployee, setFormEmployee] = useState(null);
   const [employees, setEmployees] = useState(employeesData);
@@ -18,6 +20,18 @@ const Employees = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const filteredEmployees = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const searchableFields = ['employeeId', 'name', 'email', 'phone', 'department', 'designation'];
+    return employees.filter((employee) => {
+      const matchesSearch = !normalizedQuery || searchableFields.some((field) => String(employee[field] ?? '').toLowerCase().includes(normalizedQuery));
+      const matchesDepartment = filters.department === 'All Departments' || employee.department === filters.department;
+      const matchesDesignation = filters.designation === 'All Designations' || employee.designation === filters.designation;
+      const matchesStatus = filters.status === 'All Statuses' || employee.status === filters.status;
+      return matchesSearch && matchesDepartment && matchesDesignation && matchesStatus;
+    });
+  }, [employees, filters, searchQuery]);
+  const updateFilter = (filterName, value) => setFilters((currentFilters) => ({ ...currentFilters, [filterName]: value }));
   const closeEmployeeForm = () => {
     setIsFormOpen(false);
     setFormEmployee(null);
@@ -72,8 +86,8 @@ const Employees = () => {
       <EmployeeHeader onAddEmployee={openAddEmployeeForm} />
       <EmployeeStats employees={employees} />
       <div className="space-y-3">
-        <EmployeeFilters />
-        <EmployeeTable employees={employees} onDelete={openDeleteConfirmation} onEdit={openEditEmployeeForm} onView={viewEmployee} />
+        <EmployeeFilters filters={filters} onFilterChange={updateFilter} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <EmployeeTable employees={filteredEmployees} onDelete={openDeleteConfirmation} onEdit={openEditEmployeeForm} onView={viewEmployee} />
       </div>
       <EmployeeForm employee={formEmployee} employees={employees} isOpen={isFormOpen} mode={formMode} onClose={closeEmployeeForm} onSubmit={submitEmployee} />
       <EmployeeDetailsModal employee={selectedEmployee} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />

@@ -7,9 +7,9 @@ export const employeeStatistics = [
 ];
 
 export const filterOptions = {
-  departments: ['Department', 'Engineering', 'Marketing', 'Sales', 'HR', 'Finance'],
-  designations: ['Designation', 'Senior Developer', 'Marketing Manager', 'Sales Executive', 'HR Manager', 'Accountant'],
-  statuses: ['Status', 'Active', 'Inactive', 'On Leave', 'Resigned'],
+  departments: ['All Departments', 'Engineering', 'Marketing', 'Sales', 'HR', 'Finance'],
+  designations: ['All Designations', 'Senior Developer', 'Marketing Manager', 'Sales Executive', 'HR Manager', 'Accountant'],
+  statuses: ['All Statuses', 'Active', 'Inactive', 'On Leave', 'Resigned'],
 };
 
 export const employees = [
