@@ -1,11 +1,37 @@
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
-const actionButtons = [
-  { label: 'View department', icon: Eye, color: 'text-[#344767]' },
-  { label: 'Edit department', icon: Pencil, color: 'text-[#344767]' },
-  { label: 'Delete department', icon: Trash2, color: 'text-[#f04438]' },
-];
+const DepartmentActions = ({
+    department,
+    onView,
+    onEdit,
+    onDelete,
+}) => {
+    return (
+        <div className="flex items-center gap-2">
 
-const DepartmentActions = () => <div className="flex items-center gap-2">{actionButtons.map(({ label, icon: Icon, color }) => <button className={`rounded-md border border-[#e4eaf2] p-2 ${color} transition hover:bg-slate-50`} type="button" aria-label={label} key={label}><Icon size={13} /></button>)}</div>;
+            <button
+                onClick={() => onView(department)}
+                className="rounded-md border border-[#e4eaf2] p-2 transition hover:bg-slate-50"
+            >
+                <Eye size={13} />
+            </button>
+
+            <button
+                onClick={() => onEdit(department)}
+                className="rounded-md border border-[#e4eaf2] p-2 transition hover:bg-slate-50"
+            >
+                <Pencil size={13} />
+            </button>
+
+            <button
+                onClick={() => onDelete(department)}
+                className="rounded-md border border-[#e4eaf2] p-2 text-red-500 transition hover:bg-slate-50"
+            >
+                <Trash2 size={13} />
+            </button>
+
+        </div>
+    );
+};
 
 export default DepartmentActions;

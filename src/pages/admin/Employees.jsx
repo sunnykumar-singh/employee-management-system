@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import EmployeeFilters from '../../components/employees/EmployeeFilters.jsx';
 import EmployeeDetailsModal from '../../components/employees/EmployeeDetailsModal.jsx';
-import DeleteConfirmationModal from '../../components/employees/DeleteConfirmationModal.jsx';
+import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal.jsx';
 import EmployeeForm from '../../components/employees/EmployeeForm.jsx';
 import EmployeeHeader from '../../components/employees/EmployeeHeader.jsx';
 import EmployeeStats from '../../components/employees/EmployeeStats.jsx';
@@ -91,8 +91,16 @@ const Employees = () => {
       </div>
       <EmployeeForm employee={formEmployee} employees={employees} isOpen={isFormOpen} mode={formMode} onClose={closeEmployeeForm} onSubmit={submitEmployee} />
       <EmployeeDetailsModal employee={selectedEmployee} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />
-      <DeleteConfirmationModal employee={employeeToDelete} isOpen={isDeleteModalOpen} onClose={closeDeleteConfirmation} onConfirm={deleteEmployee} />
-      <ToastContainer position="top-right" theme="light" />
+<DeleteConfirmationModal
+  isOpen={isDeleteModalOpen}
+  title="Delete Employee"
+  itemName={employeeToDelete?.name}
+  itemId={employeeToDelete?.employeeId}
+  onClose={closeDeleteConfirmation}
+  onConfirm={deleteEmployee}
+/>
+
+<ToastContainer position="top-right" theme="light" />
     </div>
   );
 };
