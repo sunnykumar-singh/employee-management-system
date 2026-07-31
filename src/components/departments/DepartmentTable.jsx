@@ -9,7 +9,7 @@ const DepartmentTable = ({ departments }) => (
     <div className="overflow-x-auto">
       {departments.length ? <table className="w-full min-w-[1050px] border-collapse"><DepartmentTableHeader /><tbody>{departments.map((department) => <DepartmentRow key={department.id} department={department} />)}</tbody></table> : <EmptyState />}
     </div>
-    <Pagination pagination={departmentPagination} />
+    <Pagination pagination={{ ...departmentPagination, end: departments.length, total: departments.length }} />
   </section>
 );
 
