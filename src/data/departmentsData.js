@@ -6,8 +6,8 @@ export const departmentStatistics = [
 ];
 
 export const departmentFilterOptions = {
-  heads: ['Department Head', 'John Doe', 'Sarah Smith', 'Michael Brown', 'Emily Johnson', 'David Wilson'],
-  statuses: ['Status', 'Active', 'Inactive'],
+  heads: ['All Department Heads', 'John Doe', 'Sarah Smith', 'Michael Brown', 'Emily Johnson', 'David Wilson'],
+  statuses: ['All Statuses', 'Active', 'Inactive'],
 };
 
 export const departments = [

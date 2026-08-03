@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import DepartmentFilters from '../../components/departments/DepartmentFilters.jsx';
 import DepartmentForm from '../../components/departments/DepartmentForm.jsx';
@@ -17,6 +17,10 @@ const departmentStyles = [
 
 const Departments = () => {
   const [departmentList, setDepartmentList] = useState(departments);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({ head: 'All Department Heads', status: 'All Statuses' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -26,6 +30,38 @@ const Departments = () => {
   const [formMode, setFormMode] = useState("add");
   const nextDepartmentNumber = departmentList.reduce((largestId, department) => Math.max(largestId, department.id), 0) + 1;
   const departmentId = `DEP${String(nextDepartmentNumber).padStart(3, '0')}`;
+  const filteredDepartments = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return departmentList.filter((department) => [
+      department.departmentId,
+      department.name,
+      department.head,
+      department.description,
+    ].some((field) => String(field ?? '').toLowerCase().includes(query))
+      && (filters.head === 'All Department Heads' || department.head === filters.head)
+      && (filters.status === 'All Statuses' || department.status === filters.status));
+  }, [departmentList, filters, searchQuery]);
+  const departmentHeadOptions = useMemo(() => ['All Department Heads', ...new Set(departmentList.map((department) => department.head))], [departmentList]);
+  const totalPages = Math.max(Math.ceil(filteredDepartments.length / pageSize), 1);
+  const activePage = Math.min(currentPage, totalPages);
+  const paginatedDepartments = useMemo(() => {
+    const startIndex = (activePage - 1) * pageSize;
+    return filteredDepartments.slice(startIndex, startIndex + pageSize);
+  }, [activePage, filteredDepartments, pageSize]);
+
+  const updateFilter = (filterName, value) => {
+    setFilters((currentFilters) => ({ ...currentFilters, [filterName]: value }));
+    setCurrentPage(1);
+  };
+  const updateSearchQuery = (value) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+  const updatePageSize = (value) => {
+    setPageSize(value);
+    setCurrentPage(1);
+  };
 
   const addDepartment = (values) => {
     const style = departmentStyles[(nextDepartmentNumber - 1) % departmentStyles.length];
@@ -40,6 +76,7 @@ const Departments = () => {
       headPhoto: values.headPhoto?.[0] ? URL.createObjectURL(values.headPhoto[0]) : null,
       ...style,
     }]);
+    setCurrentPage(Math.ceil((departmentList.length + 1) / pageSize));
     setIsFormOpen(false);
     toast.success('Department added successfully.');
   };
@@ -103,8 +140,8 @@ const handleDeleteDepartment = (department) => {
     <DepartmentHeader onAddDepartment={() => { setFormMode("add"); setEditingDepartment(null); setIsFormOpen(true); }} />
     <DepartmentStats departments={departmentList} />
     <div>
-      <DepartmentFilters />
-     <DepartmentTable departments={departmentList} onView={handleViewDepartment} onEdit={handleEditDepartment} onDelete={handleDeleteDepartment} />
+      <DepartmentFilters filters={filters} headOptions={departmentHeadOptions} onFilterChange={updateFilter} searchQuery={searchQuery} onSearchChange={updateSearchQuery} />
+     <DepartmentTable departments={paginatedDepartments} currentPage={activePage} pageSize={pageSize} totalItems={filteredDepartments.length} onPageChange={setCurrentPage} onPageSizeChange={updatePageSize} onView={handleViewDepartment} onEdit={handleEditDepartment} onDelete={handleDeleteDepartment} />
     </div>
     <DepartmentForm
   department={editingDepartment}

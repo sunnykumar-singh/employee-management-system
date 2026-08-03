@@ -20,6 +20,8 @@ const Employees = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const filteredEmployees = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
     const searchableFields = ['employeeId', 'name', 'email', 'phone', 'department', 'designation'];
@@ -31,7 +33,24 @@ const Employees = () => {
       return matchesSearch && matchesDepartment && matchesDesignation && matchesStatus;
     });
   }, [employees, filters, searchQuery]);
-  const updateFilter = (filterName, value) => setFilters((currentFilters) => ({ ...currentFilters, [filterName]: value }));
+  const totalPages = Math.max(Math.ceil(filteredEmployees.length / pageSize), 1);
+  const activePage = Math.min(currentPage, totalPages);
+  const paginatedEmployees = useMemo(() => {
+    const startIndex = (activePage - 1) * pageSize;
+    return filteredEmployees.slice(startIndex, startIndex + pageSize);
+  }, [activePage, filteredEmployees, pageSize]);
+  const updateFilter = (filterName, value) => {
+    setFilters((currentFilters) => ({ ...currentFilters, [filterName]: value }));
+    setCurrentPage(1);
+  };
+  const updateSearchQuery = (value) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+  const updatePageSize = (value) => {
+    setPageSize(value);
+    setCurrentPage(1);
+  };
   const closeEmployeeForm = () => {
     setIsFormOpen(false);
     setFormEmployee(null);
@@ -48,6 +67,7 @@ const Employees = () => {
     } else {
       const nextId = employees.reduce((largestId, currentEmployee) => Math.max(largestId, currentEmployee.id), 0) + 1;
       setEmployees((currentEmployees) => [...currentEmployees, { id: nextId, employeeId: values.employeeId.trim() || `EMP${String(nextId).padStart(3, '0')}`, name: values.fullName.trim(), initials, email: values.email.trim(), phone: values.phone, department: values.department, designation: values.designation, status: values.status, gender: values.gender, joinDate: formattedJoinDate, isNewJoiner: true, avatar: '#6659f5', profilePhoto }]);
+      setCurrentPage(Math.ceil((employees.length + 1) / pageSize));
       toast.success('Employee added successfully.');
     }
 
@@ -86,8 +106,8 @@ const Employees = () => {
       <EmployeeHeader onAddEmployee={openAddEmployeeForm} />
       <EmployeeStats employees={employees} />
       <div className="space-y-3">
-        <EmployeeFilters filters={filters} onFilterChange={updateFilter} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-        <EmployeeTable employees={filteredEmployees} onDelete={openDeleteConfirmation} onEdit={openEditEmployeeForm} onView={viewEmployee} />
+        <EmployeeFilters filters={filters} onFilterChange={updateFilter} searchQuery={searchQuery} onSearchChange={updateSearchQuery} />
+        <EmployeeTable employees={paginatedEmployees} currentPage={activePage} pageSize={pageSize} totalItems={filteredEmployees.length} onPageChange={setCurrentPage} onPageSizeChange={updatePageSize} onDelete={openDeleteConfirmation} onEdit={openEditEmployeeForm} onView={viewEmployee} />
       </div>
       <EmployeeForm employee={formEmployee} employees={employees} isOpen={isFormOpen} mode={formMode} onClose={closeEmployeeForm} onSubmit={submitEmployee} />
       <EmployeeDetailsModal employee={selectedEmployee} isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} />

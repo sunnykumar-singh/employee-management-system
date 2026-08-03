@@ -1,7 +1,7 @@
-import { BarChart3, Code2, Headphones, Megaphone, PenLine, ShieldCheck, Users, WalletCards, UserRound } from 'lucide-react';
+import { BarChart3, Building2, Code2, Headphones, Megaphone, PenLine, ShieldCheck, Users, WalletCards, UserRound } from 'lucide-react';
 import DepartmentActions from './DepartmentActions.jsx';
 
-const icons = { code: Code2, megaphone: Megaphone, chart: BarChart3, users: Users, wallet: WalletCards, headphones: Headphones, pen: PenLine, shield: ShieldCheck };
+const icons = { building: Building2, code: Code2, megaphone: Megaphone, chart: BarChart3, users: Users, wallet: WalletCards, headphones: Headphones, pen: PenLine, shield: ShieldCheck };
 
 const DepartmentRow = ({ department, onView, onEdit, onDelete }) => {
   const Icon = icons[department.icon];

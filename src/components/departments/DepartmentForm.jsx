@@ -14,7 +14,7 @@ const DepartmentForm = ({ department, departmentId, departments, isOpen, mode = 
   useEffect(() => {
     if (!isOpen) return;
     reset(isEditMode && department ? { departmentId: department.departmentId, departmentName: department.name, departmentHead: department.head, description: department.description, status: department.status, headPhoto: null } : { departmentId, departmentName: '', departmentHead: '', description: '', status: 'Active', headPhoto: null });
-  }, [department, isEditMode, isOpen, reset]);
+  }, [department, departmentId, isEditMode, isOpen, reset]);
 
   if (!isOpen) return null;
 

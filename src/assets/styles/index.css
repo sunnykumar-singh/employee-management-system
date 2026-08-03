@@ -15,3 +15,13 @@ button,
 input {
   font: inherit;
 }
+
+button:not(:disabled),
+input:not(:disabled),
+select:not(:disabled),
+textarea:not(:disabled),
+label:has(input:not(:disabled)),
+label:has(select:not(:disabled)),
+label:has(textarea:not(:disabled)) {
+  cursor: pointer;
+}
