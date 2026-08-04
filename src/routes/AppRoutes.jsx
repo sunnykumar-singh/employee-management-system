@@ -1,12 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Login from '../pages/auth/Login.jsx';
 import Register from '../pages/auth/Register.jsx';
+
 import AdminLayout from '../layouts/AdminLayout.jsx';
 import AdminDashboard from '../pages/admin/Dashboard.jsx';
 import Employees from '../pages/admin/Employees.jsx';
 import Departments from '../pages/admin/Departments.jsx';
 import Attendance from '../pages/admin/Attendance.jsx';
-import Leaves from '../pages/admin/Leaves.jsx';
+import Leaves from '../pages/admin/LeaveManagement.jsx';
 import Profile from '../pages/admin/Profile.jsx';
 import EmployeeDashboard from '../pages/employee/Dashboard.jsx';
 import NotFound from '../pages/NotFound.jsx';
