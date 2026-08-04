@@ -6,7 +6,7 @@ import {
   X,
 } from "lucide-react";
 
-const LeaveActions = ({ leave, onView, onEdit, onDelete }) => {
+const LeaveActions = ({ leave, onView, onEdit, onDelete, onApprove, onReject }) => {
   return (
     <div className="flex items-center justify-center gap-2">
      <button
@@ -23,19 +23,9 @@ const LeaveActions = ({ leave, onView, onEdit, onDelete }) => {
         <Pencil size={14} />
         </button>
 
-      <button
-        className="rounded-md border border-[#e4eaf2] p-2 text-green-600 transition hover:bg-green-50"
-        title="Approve"
-      >
-        <Check size={14} />
-      </button>
+      {leave.status !== 'Approved' && <button onClick={() => onApprove(leave)} className="rounded-md border border-[#e4eaf2] p-2 text-green-600 transition hover:bg-green-50" title={leave.status === 'Rejected' ? 'Change to Approved' : 'Approve'} type="button"><Check size={14} /></button>}
 
-      <button
-        className="rounded-md border border-[#e4eaf2] p-2 text-red-600 transition hover:bg-red-50"
-        title="Reject"
-      >
-        <X size={14} />
-      </button>
+      {leave.status !== 'Rejected' && <button onClick={() => onReject(leave)} className="rounded-md border border-[#e4eaf2] p-2 text-red-600 transition hover:bg-red-50" title={leave.status === 'Approved' ? 'Change to Rejected' : 'Reject'} type="button"><X size={14} /></button>}
 
       <button
         onClick={() => onDelete(leave)}

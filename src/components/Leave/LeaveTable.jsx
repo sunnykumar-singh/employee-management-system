@@ -2,7 +2,7 @@ import LeaveRow from "./LeaveRow";
 import Pagination from "../common/Pagination";
 
 
-const LeaveTable = ({ leaves, onView, onEdit, onDelete }) => {
+const LeaveTable = ({ leaves, currentPage, pageSize, totalItems, onPageChange, onPageSizeChange, onView, onEdit, onDelete, onApprove, onReject }) => {
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-[#e7edf5] bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -33,13 +33,15 @@ const LeaveTable = ({ leaves, onView, onEdit, onDelete }) => {
                 onView={onView}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onApprove={onApprove}
+                onReject={onReject}
               />
             ))}
           </tbody>
         </table>
       </div>
 
-      <Pagination />
+      <Pagination currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} onPageChange={onPageChange} onPageSizeChange={onPageSizeChange} />
     </div>
   );
 };
