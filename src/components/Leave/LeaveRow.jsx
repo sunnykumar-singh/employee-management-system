@@ -1,7 +1,7 @@
     import LeaveActions from "./LeaveActions";
     import StatusBadge from "./StatusBadge";
 
-    const LeaveRow = ({ leave, index }) => {
+    const LeaveRow = ({ leave, index, onView, onEdit, onDelete}) => {
     return (
         <tr className="border-t border-[#edf2f7] text-sm hover:bg-[#f8fafc] transition">
         <td className="px-5 py-4 font-medium text-[#344767]">
@@ -49,7 +49,7 @@
         </td>
 
         <td className="px-5 py-4">
-            <LeaveActions />
+            <LeaveActions leave={leave} onView={onView} onEdit={onEdit} onDelete={onDelete} />
         </td>
         </tr>
     );

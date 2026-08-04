@@ -1,49 +1,8 @@
 import LeaveRow from "./LeaveRow";
 import Pagination from "../common/Pagination";
 
-const leaveData = [
-  {
-    id: 1,
-    employeeId: "EMP001",
-    employee: "Rahul Sharma",
-    department: "Engineering",
-    leaveType: "Casual",
-    from: "10 Aug 2026",
-    to: "12 Aug 2026",
-    days: 3,
-    reason: "Family Function",
-    status: "Pending",
-    appliedOn: "05 Aug 2026",
-  },
-  {
-    id: 2,
-    employeeId: "EMP002",
-    employee: "Priya Singh",
-    department: "HR",
-    leaveType: "Sick",
-    from: "15 Aug 2026",
-    to: "16 Aug 2026",
-    days: 2,
-    reason: "Medical",
-    status: "Approved",
-    appliedOn: "03 Aug 2026",
-  },
-  {
-    id: 3,
-    employeeId: "EMP003",
-    employee: "Amit Kumar",
-    department: "Finance",
-    leaveType: "Annual",
-    from: "20 Aug 2026",
-    to: "25 Aug 2026",
-    days: 6,
-    reason: "Vacation",
-    status: "Rejected",
-    appliedOn: "01 Aug 2026",
-  },
-];
 
-const LeaveTable = () => {
+const LeaveTable = ({ leaves, onView, onEdit, onDelete }) => {
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-[#e7edf5] bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -66,11 +25,14 @@ const LeaveTable = () => {
           </thead>
 
           <tbody>
-            {leaveData.map((leave, index) => (
+            {leaves.map((leave, index) => (
               <LeaveRow
                 key={leave.id}
                 index={index}
                 leave={leave}
+                onView={onView}
+                onEdit={onEdit}
+                onDelete={onDelete}
               />
             ))}
           </tbody>
