@@ -1,20 +1,14 @@
-import { CalendarDays, Plus } from "lucide-react";
+import { CalendarDays, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const LeaveHeader = () => {
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-      {/* Left Section */}
+    <header className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-[#101828]">
-          Leave Management
-        </h1>
-
-        <p className="mt-1 text-sm text-[#667085]">
-          Manage employee leave requests and approvals.
-        </p>
+        <h1 className="text-[26px] font-bold leading-none tracking-tight text-[#101828]">Leave Management</h1>
+        <nav className="mt-2 flex items-center gap-1 text-[12px]" aria-label="Breadcrumb"><Link className="font-medium text-[#4a45e9] hover:underline" to="/admin/dashboard">Dashboard</Link><ChevronRight size={14} className="text-[#98a2b3]" /><span className="text-[#344767]">Leave Management</span></nav>
       </div>
 
-      {/* Right Section */}
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -24,15 +18,8 @@ const LeaveHeader = () => {
           Leave Calendar
         </button>
 
-        {/* <button
-          type="button"
-          className="flex items-center gap-2 rounded-lg bg-[#4b3df2] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4032e8]"
-        >
-          <Plus size={18} />
-          Apply Leave
-        </button> */}
       </div>
-    </div>
+    </header>
   );
 };
 

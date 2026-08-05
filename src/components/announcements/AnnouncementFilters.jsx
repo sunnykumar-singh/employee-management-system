@@ -1,0 +1,7 @@
+import { CalendarDays, RotateCcw, Search } from 'lucide-react';
+import { announcementFilters } from '../../data/announcementsData.js';
+import FilterDropdown from '../employees/FilterDropdown.jsx';
+
+const AnnouncementFilters = () => <section className="flex flex-wrap items-center gap-3 rounded-xl border border-[#e4eaf2] bg-white px-4 py-4 shadow-[0_2px_8px_rgba(16,24,40,0.02)]"><div className="relative min-w-[220px] flex-[2]"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#98a2b3]" size={15} /><input className="w-full rounded-md border border-[#dfe6f0] bg-white py-2 pl-9 pr-3 text-[11px] font-medium text-[#101828] outline-none transition focus:border-[#6659f5]" type="text" placeholder="Search announcement..." aria-label="Search announcements" /></div><FilterDropdown label="Department" options={announcementFilters.departments} /><FilterDropdown label="Status" options={announcementFilters.statuses} /><label className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#344767]" size={14} /><input className="rounded-md border border-[#dfe6f0] bg-white py-2 pl-9 pr-3 text-[11px] font-medium text-[#101828] outline-none focus:border-[#6659f5]" type="date" aria-label="Announcement date" /></label><button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button"><RotateCcw size={14} />Reset</button></section>;
+
+export default AnnouncementFilters;

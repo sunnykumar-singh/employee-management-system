@@ -8,6 +8,7 @@ import Employees from '../pages/admin/Employees.jsx';
 import Departments from '../pages/admin/Departments.jsx';
 import Attendance from '../pages/admin/Attendance.jsx';
 import Leaves from '../pages/admin/LeaveManagement.jsx';
+import Announcements from '../pages/admin/Announcements.jsx';
 import Profile from '../pages/admin/Profile.jsx';
 import EmployeeDashboard from '../pages/employee/Dashboard.jsx';
 import NotFound from '../pages/NotFound.jsx';
@@ -24,7 +25,7 @@ const AppRoutes = () => (
       <Route path="departments" element={<Departments />} />
       <Route path="attendance" element={<Attendance />} />
       <Route path="leave-management" element={<Leaves />} />
-      <Route path="announcements" />
+      <Route path="announcements" element={<Announcements />} />
       <Route path="settings" />
       <Route path="profile" element={<Profile />} />
     </Route>

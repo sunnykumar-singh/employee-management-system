@@ -3,7 +3,7 @@
 
     const LeaveRow = ({ leave, index, onView, onEdit, onDelete, onApprove, onReject}) => {
     return (
-        <tr className="border-t border-[#edf2f7] text-sm hover:bg-[#f8fafc] transition">
+        <tr className="border-t border-[#edf2f7] text-[11px] hover:bg-[#f8fafc] transition">
         <td className="px-5 py-4 font-medium text-[#344767]">
             {index + 1}
         </td>

@@ -5,6 +5,6 @@ const statusClasses = {
   Resigned: 'bg-[#ffebeb] text-[#f04438]',
 };
 
-const EmployeeStatusBadge = ({ status }) => <span className={`inline-flex rounded px-1.5 py-1 text-[9px] font-medium ${statusClasses[status]}`}>{status}</span>;
+const EmployeeStatusBadge = ({ status }) => <span className={`inline-flex rounded px-1.5 py-1 text-[10px] font-medium ${statusClasses[status]}`}>{status}</span>;
 
 export default EmployeeStatusBadge;
