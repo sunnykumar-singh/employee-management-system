@@ -11,3 +11,5 @@
 - Prefers visually balanced card grids: cards in the same row should be equal height and neatly aligned, with action buttons (e.g., Save Changes) pinned to the same vertical position via flex flex-col + mt-auto footers. Confidence: 0.65
 - Password inputs should include show/hide visibility toggles (eye/eye-off icons) with accessible aria-labels, ideally via a small reusable PasswordField component. Confidence: 0.5
 - Uses modern toggle switches (role="switch") for boolean/settings toggles rather than checkboxes. Confidence: 0.65
+- Pre-fills edit forms with the existing data (from mock/current values) so users see current values before changing them. Confidence: 0.5
+- Resets password fields to empty after a successful password change (a submitForm wrapper that calls onSave then resets the form), rather than leaving stale values in the fields. Confidence: 0.6
