@@ -1,58 +1,7 @@
 import AnnouncementRow from "./AnnouncementRow";
 import Pagination from "../common/Pagination";
 
-const announcementData = [
-  {
-    id: 1,
-    announcementId: "ANN001",
-    title: "Company Annual Day Celebration",
-    department: "HR",
-    date: "05 Aug 2026",
-    status: "Published",
-  },
-  {
-    id: 2,
-    announcementId: "ANN002",
-    title: "New Office Timing Policy",
-    department: "HR",
-    date: "03 Aug 2026",
-    status: "Published",
-  },
-  {
-    id: 3,
-    announcementId: "ANN003",
-    title: "Diwali Bonus Announcement",
-    department: "Finance",
-    date: "01 Aug 2026",
-    status: "Scheduled",
-  },
-  {
-    id: 4,
-    announcementId: "ANN004",
-    title: "System Maintenance on Sunday",
-    department: "IT",
-    date: "30 Jul 2026",
-    status: "Draft",
-  },
-  {
-    id: 5,
-    announcementId: "ANN005",
-    title: "Inter-Department Cricket Tournament",
-    department: "HR",
-    date: "28 Jul 2026",
-    status: "Published",
-  },
-  {
-    id: 6,
-    announcementId: "ANN006",
-    title: "Updated Travel Reimbursement Guidelines",
-    department: "Finance",
-    date: "25 Jul 2026",
-    status: "Archived",
-  },
-];
-
-const AnnouncementTable = () => {
+const AnnouncementTable = ({ announcements, currentPage, pageSize, totalItems, onPageChange, onPageSizeChange, onView, onDelete }) => {
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-[#e7edf5] bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -70,18 +19,20 @@ const AnnouncementTable = () => {
           </thead>
 
           <tbody>
-            {announcementData.map((announcement, index) => (
+            {announcements.map((announcement, index) => (
               <AnnouncementRow
                 key={announcement.id}
                 index={index}
                 announcement={announcement}
+                onView={onView}
+                onDelete={onDelete}
               />
             ))}
           </tbody>
         </table>
       </div>
 
-      <Pagination />
+      <Pagination currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} onPageChange={onPageChange} onPageSizeChange={onPageSizeChange} />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import StatusBadge from "./StatusBadge";
 
 const ViewAnnouncementModal = ({ announcement, isOpen, onClose }) => {
   if (!isOpen || !announcement) return null;
@@ -31,9 +32,9 @@ const ViewAnnouncementModal = ({ announcement, isOpen, onClose }) => {
           </div>
 
           <div>
-            <p className="text-sm text-[#667085]">Announcement ID</p>
+            <p className="text-sm text-[#667085]">Category</p>
             <h3 className="font-semibold text-[#101828]">
-              {announcement.announcementId}
+              {announcement.category}
             </h3>
           </div>
 
@@ -45,23 +46,23 @@ const ViewAnnouncementModal = ({ announcement, isOpen, onClose }) => {
           </div>
 
           <div>
-            <p className="text-sm text-[#667085]">Date</p>
+            <p className="text-sm text-[#667085]">Status</p>
+            <h3 className="font-semibold text-[#101828]">
+              <StatusBadge status={announcement.status} />
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-sm text-[#667085]">Publish Date</p>
             <h3 className="font-semibold text-[#101828]">
               {announcement.date}
             </h3>
           </div>
 
-          <div>
-            <p className="text-sm text-[#667085]">Status</p>
-            <h3 className="font-semibold text-[#101828]">
-              {announcement.status}
-            </h3>
-          </div>
-
           <div className="col-span-2">
-            <p className="text-sm text-[#667085]">Description</p>
+            <p className="text-sm text-[#667085]">Announcement Message</p>
             <p className="mt-1 text-[#101828]">
-              {announcement.description}
+              {announcement.message}
             </p>
           </div>
 

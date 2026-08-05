@@ -1,7 +1,7 @@
 import AnnouncementActions from "./AnnouncementActions";
 import StatusBadge from "./StatusBadge";
 
-const AnnouncementRow = ({ announcement, index }) => {
+const AnnouncementRow = ({ announcement, index, onView, onDelete }) => {
   return (
     <tr className="border-t border-[#edf2f7] text-[11px] hover:bg-[#f8fafc] transition">
       <td className="px-5 py-4 font-medium text-[#344767]">
@@ -29,7 +29,7 @@ const AnnouncementRow = ({ announcement, index }) => {
       </td>
 
       <td className="px-5 py-4">
-        <AnnouncementActions />
+        <AnnouncementActions announcement={announcement} onView={onView} onDelete={onDelete} />
       </td>
     </tr>
   );
