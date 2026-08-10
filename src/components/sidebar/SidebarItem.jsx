@@ -17,7 +17,7 @@ const SidebarItem = ({ to, label, icon: Icon, onClick }) => {
 
   if (to) {
     return (
-      <NavLink className={itemClassName} to={to}>
+      <NavLink className={itemClassName} to={to} onClick={onClick}>
         {content}
       </NavLink>
     );

@@ -1,3 +1,107 @@
-const Profile = () => null;
+import { useState } from 'react';
+import { Briefcase, ChevronRight, KeyRound, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import PersonalInfoTab from '../../components/profile/PersonalInfoTab';
+import OrganizationTab from '../../components/profile/OrganizationTab';
+import SecurityTab from '../../components/profile/SecurityTab';
+import { adminProfileData } from '../../data/profileData';
+
+const Profile = () => {
+  const [profile, setProfile] = useState(adminProfileData);
+  const [activeTab, setActiveTab] = useState('personal');
+
+  const handleSavePersonalInfo = (updatedData) => {
+    setProfile((prev) => ({
+      ...prev,
+      name: updatedData.name,
+      email: updatedData.email,
+      phone: updatedData.phone,
+      gender: updatedData.gender,
+      dateOfBirth: updatedData.dateOfBirth,
+      address: updatedData.address,
+      emergencyContact: {
+        name: updatedData.emergencyName,
+        relation: updatedData.emergencyRelation,
+        phone: updatedData.emergencyPhone,
+      },
+    }));
+    toast.success('Personal profile updated successfully!');
+  };
+
+  const handlePasswordChange = () => {
+    toast.success('Password updated successfully!');
+  };
+
+  const handleAvatarChange = () => {
+    toast.info('Profile picture updated!');
+  };
+
+  const tabs = [
+    { id: 'personal', label: 'Personal Info', icon: User },
+    { id: 'organization', label: 'Job & Organization', icon: Briefcase },
+    { id: 'security', label: 'Security & Password', icon: KeyRound },
+  ];
+
+  return (
+    <div className="mx-auto max-w-[1280px] space-y-6">
+      {/* Page Header & Breadcrumbs */}
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[26px] font-bold leading-none tracking-tight text-[#101828]">My Profile</h1>
+          <nav className="mt-2 flex items-center gap-1 text-[12px]" aria-label="Breadcrumb">
+            <Link className="font-medium text-[#4f46e5] hover:underline" to="/admin/dashboard">
+              Dashboard
+            </Link>
+            <ChevronRight size={14} className="text-[#98a2b3]" />
+            <span className="text-[#344767]">Profile</span>
+          </nav>
+        </div>
+      </header>
+
+      {/* Top Banner Card */}
+      <ProfileHeader profile={profile} onAvatarChange={handleAvatarChange} />
+
+      {/* Navigation Tabs */}
+      <div className="flex border-b border-[#e2e8f0] bg-white rounded-xl px-2 pt-2 shadow-[0_2px_8px_rgba(16,24,40,0.02)]">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 border-b-2 px-5 py-3 text-sm font-semibold transition-all ${
+                isActive
+                  ? 'border-[#4338ca] text-[#4338ca]'
+                  : 'border-transparent text-[#64748b] hover:text-[#0f172a]'
+              }`}
+              type="button"
+            >
+              <Icon size={16} /> {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab Contents */}
+      <div>
+        {activeTab === 'personal' && (
+          <PersonalInfoTab profile={profile} onSave={handleSavePersonalInfo} />
+        )}
+        {activeTab === 'organization' && (
+          <OrganizationTab profile={profile} />
+        )}
+        {activeTab === 'security' && (
+          <SecurityTab onPasswordChange={handlePasswordChange} />
+        )}
+      </div>
+
+      <ToastContainer position="top-right" theme="light" />
+    </div>
+  );
+};
 
 export default Profile;
