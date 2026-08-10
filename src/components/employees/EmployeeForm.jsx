@@ -68,7 +68,24 @@ const EmployeeForm = ({ employee, employees, isOpen, mode = 'add', onClose, onSu
             <Field label="Employee ID" error={errors.employeeId}><input className={`${fieldClassName} ${isEditMode ? 'cursor-not-allowed bg-[#f8fafc] text-[#667085]' : ''}`} placeholder="EMP009" readOnly={isEditMode} {...register('employeeId', { required: 'Employee ID is required.', validate: (value) => !employees.some((currentEmployee) => currentEmployee.employeeId.toLowerCase() === value.trim().toLowerCase() && currentEmployee.employeeId !== employee?.employeeId) || 'This Employee ID already exists.' })} /><ErrorMessage error={errors.employeeId} /></Field>
             <Field label="Full Name" error={errors.fullName}><input className={fieldClassName} placeholder="Enter full name" {...register('fullName', { required: 'Full Name is required.', validate: (value) => value.trim().length > 0 || 'Full Name cannot be empty.' })} /><ErrorMessage error={errors.fullName} /></Field>
             <Field label="Email" error={errors.email}><input className={fieldClassName} type="email" placeholder="name@company.com" {...register('email', { required: 'Email is required.', pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email address.' } })} /><ErrorMessage error={errors.email} /></Field>
-            <Field label="Phone Number" error={errors.phone}><input className={fieldClassName} inputMode="numeric" placeholder="10-digit mobile number" {...register('phone', { required: 'Phone Number is required.', pattern: { value: /^\d{10}$/, message: 'Phone Number must contain exactly 10 digits.' } })} /><ErrorMessage error={errors.phone} /></Field>
+            <Field label="Phone Number" error={errors.phone}>
+              <div className="mt-1.5 flex rounded-md border border-[#dfe6f0] bg-white transition focus-within:border-[#6659f5] focus-within:ring-2 focus-within:ring-[#ecebff] overflow-hidden">
+                <select className="w-[105px] border-r border-[#dfe6f0] bg-[#f8fafc] px-2.5 py-2 text-xs font-semibold text-[#101828] outline-none cursor-pointer hover:bg-slate-100 shrink-0" defaultValue="+91">
+                  <option value="+91">+91 (India)</option>
+                  <option value="+1">+1 (US)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+61">+61 (AU)</option>
+                  <option value="+971">+971 (UAE)</option>
+                  <option value="+49">+49 (DE)</option>
+                  <option value="+33">+33 (FR)</option>
+                  <option value="+81">+81 (JP)</option>
+                  <option value="+65">+65 (SG)</option>
+                  <option value="+86">+86 (CN)</option>
+                </select>
+                <input className="w-full bg-white px-3 py-2 text-sm text-[#101828] outline-none" inputMode="numeric" placeholder="10-digit mobile number" {...register('phone', { required: 'Phone Number is required.', pattern: { value: /^\d{10}$/, message: 'Phone Number must contain exactly 10 digits.' } })} />
+              </div>
+              <ErrorMessage error={errors.phone} />
+            </Field>
             <Field label="Department" error={errors.department}><select className={fieldClassName} {...register('department', { required: 'Please select a department.' })}><option value="">Select department</option>{filterOptions.departments.slice(1).map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.department} /></Field>
             <Field label="Designation" error={errors.designation}><select className={fieldClassName} {...register('designation', { required: 'Please select a designation.' })}><option value="">Select designation</option>{filterOptions.designations.slice(1).map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.designation} /></Field>
             <Field label="Joining Date" error={errors.joiningDate}><input className={fieldClassName} type="date" {...register('joiningDate', { required: 'Joining Date is required.' })} /><ErrorMessage error={errors.joiningDate} /></Field>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { KeyRound, Lock, Monitor, Shield, Smartphone } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Toggle from '../settings/Toggle';
 import PasswordField from '../settings/PasswordField';
 
@@ -14,8 +15,20 @@ const SecurityTab = ({ onPasswordChange }) => {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
+    if (!passwords.current || !passwords.current.trim()) {
+      toast.error('Current password is required.');
+      return;
+    }
+    if (!passwords.new || !passwords.new.trim()) {
+      toast.error('New password is required.');
+      return;
+    }
+    if (passwords.new.trim().length < 6) {
+      toast.error('New password must be at least 6 characters.');
+      return;
+    }
     if (passwords.new !== passwords.confirm) {
-      alert('New password and confirmation do not match.');
+      toast.error('New password and confirmation do not match.');
       return;
     }
     if (onPasswordChange) {
@@ -82,7 +95,7 @@ const SecurityTab = ({ onPasswordChange }) => {
             <p className="text-sm font-semibold text-[#101828]">Two-Factor Authentication (2FA)</p>
             <p className="text-xs text-[#64748b]">Add an extra layer of security to your employee account.</p>
           </div>
-          <Toggle checked={twoFactor} onChange={(e) => setTwoFactor(e.target.checked)} label="Enable 2FA" />
+          <Toggle checked={twoFactor} onChange={(val) => setTwoFactor(typeof val === 'boolean' ? val : Boolean(val?.target?.checked))} label="Enable 2FA" />
         </div>
       </div>
 

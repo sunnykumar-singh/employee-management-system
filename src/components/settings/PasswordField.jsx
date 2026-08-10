@@ -3,13 +3,14 @@ import { useState } from 'react';
 
 const fieldClassName = 'w-full rounded-md border border-[#dfe6f0] bg-white px-3 py-2.5 text-sm text-[#101828] outline-none transition placeholder:text-[#98a2b3] focus:border-[#6659f5] focus:ring-2 focus:ring-[#ecebff]';
 
-const PasswordField = ({ label, placeholder, error, register }) => {
+const PasswordField = ({ label, placeholder, error, register, value, onChange, name, id, required }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const inputProps = register || { value, onChange, name, id, required };
 
   return (
     <Field label={label}>
       <div className="relative">
-        <input className={`${fieldClassName} pr-10`} type={isPasswordVisible ? 'text' : 'password'} placeholder={placeholder} {...register} />
+        <input className={`${fieldClassName} pr-10`} type={isPasswordVisible ? 'text' : 'password'} placeholder={placeholder} {...inputProps} />
         <button
           type="button"
           className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#667085] transition hover:text-[#101828]"

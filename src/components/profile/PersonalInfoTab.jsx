@@ -1,17 +1,51 @@
 import { useState } from 'react';
 import { Phone, Save, User } from 'lucide-react';
+import { toast } from 'react-toastify';
+
+const countryCodes = [
+  { code: '+91', country: 'India', label: '+91 (India)' },
+  { code: '+1', country: 'United States', label: '+1 (US)' },
+  { code: '+44', country: 'United Kingdom', label: '+44 (UK)' },
+  { code: '+61', country: 'Australia', label: '+61 (AU)' },
+  { code: '+971', country: 'UAE', label: '+971 (UAE)' },
+  { code: '+49', country: 'Germany', label: '+49 (DE)' },
+  { code: '+33', country: 'France', label: '+33 (FR)' },
+  { code: '+81', country: 'Japan', label: '+81 (JP)' },
+  { code: '+65', country: 'Singapore', label: '+65 (SG)' },
+  { code: '+86', country: 'China', label: '+86 (CN)' },
+  { code: '+966', country: 'Saudi Arabia', label: '+966 (SA)' },
+  { code: '+60', country: 'Malaysia', label: '+60 (MY)' },
+  { code: '+977', country: 'Nepal', label: '+977 (NP)' },
+  { code: '+880', country: 'Bangladesh', label: '+880 (BD)' },
+];
+
+const parsePhone = (phoneStr) => {
+  if (!phoneStr) return { code: '+91', number: '' };
+  const matched = countryCodes.find((c) => phoneStr.startsWith(c.code));
+  if (matched) {
+    return { code: matched.code, number: phoneStr.slice(matched.code.length).trim() };
+  }
+  return { code: '+91', number: phoneStr.trim() };
+};
 
 const PersonalInfoTab = ({ profile, onSave }) => {
+  const initialPhone = parsePhone(profile.phone);
+  const initialEmergencyPhone = parsePhone(profile.emergencyContact?.phone);
+
+  const [phoneCode, setPhoneCode] = useState(initialPhone.code);
+  const [phoneNumber, setPhoneNumber] = useState(initialPhone.number);
+
+  const [emergencyCode, setEmergencyCode] = useState(initialEmergencyPhone.code);
+  const [emergencyNumber, setEmergencyNumber] = useState(initialEmergencyPhone.number);
+
   const [formData, setFormData] = useState({
     name: profile.name || '',
     email: profile.email || '',
-    phone: profile.phone || '',
     gender: profile.gender || 'Male',
     dateOfBirth: profile.dateOfBirth || '',
     address: profile.address || '',
     emergencyName: profile.emergencyContact?.name || '',
     emergencyRelation: profile.emergencyContact?.relation || '',
-    emergencyPhone: profile.emergencyContact?.phone || '',
   });
 
   const handleChange = (e) => {
@@ -21,8 +55,29 @@ const PersonalInfoTab = ({ profile, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const phoneDigits = phoneNumber.replace(/\D/g, '');
+    if (!phoneDigits || phoneDigits.length < 10) {
+      toast.error('Mobile number must contain at least 10 digits.');
+      return;
+    }
+
+    if (emergencyNumber && emergencyNumber.trim()) {
+      const emergencyDigits = emergencyNumber.replace(/\D/g, '');
+      if (emergencyDigits.length < 10) {
+        toast.error('Emergency contact mobile number must contain at least 10 digits.');
+        return;
+      }
+    }
+
+    const payload = {
+      ...formData,
+      phone: `${phoneCode} ${phoneNumber.trim()}`,
+      emergencyPhone: emergencyNumber.trim() ? `${emergencyCode} ${emergencyNumber.trim()}` : '',
+    };
+
     if (onSave) {
-      onSave(formData);
+      onSave(payload);
     }
   };
 
@@ -37,42 +92,51 @@ const PersonalInfoTab = ({ profile, onSave }) => {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
             <label className="block text-xs font-semibold text-[#344767] mb-1">Full Name</label>
-            <div className="relative">
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-[#dce3ee] bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none transition focus:border-[#4f46e5]"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#344767] mb-1">Email Address</label>
-            <div className="relative">
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-[#dce3ee] bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none transition focus:border-[#4f46e5]"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#344767] mb-1">Phone Number</label>
             <input
               type="text"
-              name="phone"
-              value={formData.phone}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className="w-full rounded-lg border border-[#dce3ee] bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none transition focus:border-[#4f46e5]"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#344767] mb-1">Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-[#dce3ee] bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none transition focus:border-[#4f46e5]"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#344767] mb-1">Phone Number</label>
+            <div className="flex rounded-lg border border-[#dce3ee] bg-white transition focus-within:border-[#4f46e5] overflow-hidden">
+              <select
+                value={phoneCode}
+                onChange={(e) => setPhoneCode(e.target.value)}
+                className="w-[105px] border-r border-[#dce3ee] bg-[#f8fafc] px-2.5 py-2.5 text-xs font-semibold text-[#101828] outline-none cursor-pointer hover:bg-slate-100 shrink-0"
+              >
+                {countryCodes.map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="98765 43210"
+                className="w-full bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none placeholder:text-[#94a3b8]"
+                required
+              />
+            </div>
           </div>
 
           <div>
@@ -144,13 +208,26 @@ const PersonalInfoTab = ({ profile, onSave }) => {
 
           <div>
             <label className="block text-xs font-semibold text-[#344767] mb-1">Contact Phone</label>
-            <input
-              type="text"
-              name="emergencyPhone"
-              value={formData.emergencyPhone}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-[#dce3ee] bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none transition focus:border-[#4f46e5]"
-            />
+            <div className="flex rounded-lg border border-[#dce3ee] bg-white transition focus-within:border-[#4f46e5] overflow-hidden">
+              <select
+                value={emergencyCode}
+                onChange={(e) => setEmergencyCode(e.target.value)}
+                className="w-[105px] border-r border-[#dce3ee] bg-[#f8fafc] px-2.5 py-2.5 text-xs font-semibold text-[#101828] outline-none cursor-pointer hover:bg-slate-100 shrink-0"
+              >
+                {countryCodes.map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={emergencyNumber}
+                onChange={(e) => setEmergencyNumber(e.target.value)}
+                placeholder="98765 43210"
+                className="w-full bg-white px-3.5 py-2.5 text-sm text-[#101828] outline-none placeholder:text-[#94a3b8]"
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,18 +1,26 @@
 import { LockKeyhole, UserRound } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthField from '../../components/forms/AuthField.jsx';
 import AuthLayout from '../../layouts/AuthLayout.jsx';
 
 const Login = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: 'onTouched' });
 
-  const onSubmit = () => toast.success('Login is ready to connect to your backend.');
+  const onSubmit = (data) => {
+    toast.success('Login successful!');
+    if (data.email && data.email.toLowerCase().includes('employee')) {
+      navigate('/employee/dashboard');
+    } else {
+      navigate('/admin/dashboard');
+    }
+  };
   const onInvalid = () => toast.error('Please correct the highlighted fields.');
 
   return (
