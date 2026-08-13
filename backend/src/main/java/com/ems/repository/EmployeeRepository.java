@@ -25,4 +25,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     boolean existsByEmployeeIdIgnoreCaseAndIdNot(String employeeId, Long id);
 
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    boolean existsByDepartmentId(Long departmentId);
+
+    long countByDepartmentIdAndActiveTrue(Long departmentId);
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.ems.dto.EmployeeRequest;
 import com.ems.dto.EmployeeResponse;
 import com.ems.entity.Department;
+import com.ems.entity.DepartmentStatus;
 import com.ems.entity.Employee;
 import com.ems.entity.EmployeeStatus;
 import com.ems.entity.Gender;
@@ -44,7 +45,12 @@ class EmployeeServiceTest {
 
     @BeforeEach
     void setUp() {
-        department = Department.builder().id(1L).departmentId("DEP001").name("Engineering").active(true).build();
+        department = Department.builder()
+                .id(1L)
+                .departmentId("DEP001")
+                .name("Engineering")
+                .status(DepartmentStatus.ACTIVE)
+                .build();
 
         request = new EmployeeRequest();
         request.setEmployeeId("emp009");

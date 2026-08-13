@@ -1,6 +1,7 @@
 package com.ems.config;
 
 import com.ems.entity.Department;
+import com.ems.entity.DepartmentStatus;
 import com.ems.entity.Role;
 import com.ems.entity.User;
 import com.ems.repository.DepartmentRepository;
@@ -18,11 +19,11 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements CommandLineRunner {
 
     private static final List<DepartmentSeed> DEPARTMENT_SEEDS = List.of(
-            new DepartmentSeed("DEP001", "Engineering"),
-            new DepartmentSeed("DEP002", "Marketing"),
-            new DepartmentSeed("DEP003", "Sales"),
-            new DepartmentSeed("DEP004", "HR"),
-            new DepartmentSeed("DEP005", "Finance"));
+            new DepartmentSeed("DEP001", "Engineering", "John Doe", "Handles product development and technical operations"),
+            new DepartmentSeed("DEP002", "Marketing", "Sarah Smith", "Handles branding, promotions and market research"),
+            new DepartmentSeed("DEP003", "Sales", "Michael Brown", "Responsible for sales, client relations and revenue growth"),
+            new DepartmentSeed("DEP004", "HR", "Emily Johnson", "Manages recruitment, employee relations and policies"),
+            new DepartmentSeed("DEP005", "Finance", "David Wilson", "Handles budgeting, accounts and financial planning"));
 
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
@@ -60,11 +61,13 @@ public class DataInitializer implements CommandLineRunner {
             departmentRepository.save(Department.builder()
                     .departmentId(seed.departmentId())
                     .name(seed.name())
-                    .active(true)
+                    .head(seed.head())
+                    .description(seed.description())
+                    .status(DepartmentStatus.ACTIVE)
                     .build());
             log.info("Seeded department: {}", seed.name());
         });
     }
 
-    private record DepartmentSeed(String departmentId, String name) {}
+    private record DepartmentSeed(String departmentId, String name, String head, String description) {}
 }
