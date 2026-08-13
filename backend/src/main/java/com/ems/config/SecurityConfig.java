@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/api/employees/**",
                                 "/api/departments/**",
                                 "/api/attendance/**",
-                                "/api/leaves/**")
+                                "/api/leaves/**",
+                                "/api/announcements/**")
                         .hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
