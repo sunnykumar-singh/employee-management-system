@@ -74,6 +74,22 @@ public class Employee {
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
+    @Builder.Default
+    @Column(name = "annual_leave_balance", nullable = false)
+    private int annualLeaveBalance = 18;
+
+    @Builder.Default
+    @Column(name = "sick_leave_balance", nullable = false)
+    private int sickLeaveBalance = 12;
+
+    @Builder.Default
+    @Column(name = "casual_leave_balance", nullable = false)
+    private int casualLeaveBalance = 7;
+
+    @Builder.Default
+    @Column(name = "emergency_leave_balance", nullable = false)
+    private int emergencyLeaveBalance = 3;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -110,5 +126,14 @@ public class Employee {
         if (designation != null) {
             designation = designation.trim();
         }
+    }
+
+    public int getLeaveEntitlement(LeaveType leaveType) {
+        return switch (leaveType) {
+            case ANNUAL -> annualLeaveBalance;
+            case SICK -> sickLeaveBalance;
+            case CASUAL -> casualLeaveBalance;
+            case EMERGENCY -> emergencyLeaveBalance;
+        };
     }
 }

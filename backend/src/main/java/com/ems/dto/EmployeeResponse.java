@@ -26,6 +26,11 @@ public class EmployeeResponse {
     @JsonProperty("isActive")
     private boolean isActive;
 
+    private int annualLeaveBalance;
+    private int sickLeaveBalance;
+    private int casualLeaveBalance;
+    private int emergencyLeaveBalance;
+
     public static EmployeeResponse from(Employee employee) {
         return EmployeeResponse.builder()
                 .id(employee.getId())
@@ -39,6 +44,10 @@ public class EmployeeResponse {
                 .status(employee.getStatus())
                 .gender(employee.getGender())
                 .isActive(employee.isActive())
+                .annualLeaveBalance(employee.getAnnualLeaveBalance())
+                .sickLeaveBalance(employee.getSickLeaveBalance())
+                .casualLeaveBalance(employee.getCasualLeaveBalance())
+                .emergencyLeaveBalance(employee.getEmergencyLeaveBalance())
                 .build();
     }
 }
