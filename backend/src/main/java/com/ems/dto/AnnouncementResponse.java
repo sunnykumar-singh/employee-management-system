@@ -29,7 +29,9 @@ public class AnnouncementResponse {
                 .announcementId(announcement.getAnnouncementId())
                 .title(announcement.getTitle())
                 .category(announcement.getCategory())
-                .department(DepartmentSummary.from(announcement.getDepartment()))
+                .department(announcement.getDepartment() == null
+                        ? DepartmentSummary.allDepartments()
+                        : DepartmentSummary.from(announcement.getDepartment()))
                 .message(announcement.getMessage())
                 .status(announcement.getStatus())
                 .scheduledAt(announcement.getScheduledAt())

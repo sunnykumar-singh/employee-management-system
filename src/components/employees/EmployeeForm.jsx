@@ -1,7 +1,7 @@
 import { Upload, X } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { filterOptions } from '../../data/employeesData.js';
+import { DESIGNATIONS, EMPLOYEE_STATUSES, getSelectedFile } from '../../utils/mappers.js';
 
 const fieldClassName = 'mt-1.5 w-full rounded-md border border-[#dfe6f0] bg-white px-3 py-2.5 text-sm text-[#101828] outline-none transition placeholder:text-[#98a2b3] focus:border-[#6659f5] focus:ring-2 focus:ring-[#ecebff]';
 
@@ -21,15 +21,18 @@ const toInputDate = (date) => {
   return Number.isNaN(parsedDate.getTime()) ? '' : parsedDate.toISOString().slice(0, 10);
 };
 
-const EmployeeForm = ({ employee, employees, isOpen, mode = 'add', onClose, onSubmit }) => {
+const EmployeeForm = ({ employee, employees, departments = [], isOpen, mode = 'add', onClose, onSubmit }) => {
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: { employeeId: '', fullName: '', email: '', phone: '', department: '', designation: '', joiningDate: '', status: '', gender: '' } });
 
   const isEditMode = mode === 'edit';
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const selectedPhoto = watch('profilePhoto');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -37,7 +40,7 @@ const EmployeeForm = ({ employee, employees, isOpen, mode = 'add', onClose, onSu
       employeeId: employee.employeeId,
       fullName: employee.name,
       email: employee.email,
-      phone: employee.phone.replace(/\D/g, '').slice(-10),
+      phone: String(employee.phone || '').replace(/\D/g, '').slice(-10),
       department: employee.department,
       designation: employee.designation,
       joiningDate: toInputDate(employee.joinDate),
@@ -45,12 +48,22 @@ const EmployeeForm = ({ employee, employees, isOpen, mode = 'add', onClose, onSu
       gender: employee.gender,
       profilePhoto: null,
     } : { employeeId: '', fullName: '', email: '', phone: '', department: '', designation: '', joiningDate: '', status: '', gender: '', profilePhoto: null });
+    setPhotoPreview(employee?.profilePhoto || null);
   }, [employee, isEditMode, isOpen, reset]);
+
+  useEffect(() => {
+    const file = getSelectedFile(selectedPhoto);
+    if (!file) return undefined;
+    const url = URL.createObjectURL(file);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [selectedPhoto]);
 
   if (!isOpen) return null;
 
   const closeForm = () => {
     reset();
+    setPhotoPreview(null);
     onClose();
   };
 
@@ -86,12 +99,26 @@ const EmployeeForm = ({ employee, employees, isOpen, mode = 'add', onClose, onSu
               </div>
               <ErrorMessage error={errors.phone} />
             </Field>
-            <Field label="Department" error={errors.department}><select className={fieldClassName} {...register('department', { required: 'Please select a department.' })}><option value="">Select department</option>{filterOptions.departments.slice(1).map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.department} /></Field>
-            <Field label="Designation" error={errors.designation}><select className={fieldClassName} {...register('designation', { required: 'Please select a designation.' })}><option value="">Select designation</option>{filterOptions.designations.slice(1).map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.designation} /></Field>
+            <Field label="Department" error={errors.department}><select className={fieldClassName} {...register('department', { required: 'Please select a department.' })}><option value="">Select department</option>{departments.map((option) => <option key={option.id}>{option.name}</option>)}</select><ErrorMessage error={errors.department} /></Field>
+            <Field label="Designation" error={errors.designation}><select className={fieldClassName} {...register('designation', { required: 'Please select a designation.' })}><option value="">Select designation</option>{DESIGNATIONS.map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.designation} /></Field>
             <Field label="Joining Date" error={errors.joiningDate}><input className={fieldClassName} type="date" {...register('joiningDate', { required: 'Joining Date is required.' })} /><ErrorMessage error={errors.joiningDate} /></Field>
-            <Field label="Status" error={errors.status}><select className={fieldClassName} {...register('status', { required: 'Please select a status.' })}><option value="">Select status</option>{filterOptions.statuses.slice(1).map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.status} /></Field>
+            <Field label="Status" error={errors.status}><select className={fieldClassName} {...register('status', { required: 'Please select a status.' })}><option value="">Select status</option>{EMPLOYEE_STATUSES.map((option) => <option key={option}>{option}</option>)}</select><ErrorMessage error={errors.status} /></Field>
             <fieldset className="sm:col-span-2"><legend className="text-sm font-medium text-[#344767]">Gender</legend><div className="mt-2 flex flex-wrap gap-5">{['Male', 'Female', 'Other'].map((gender) => <label className="flex items-center gap-2 text-sm text-[#344767]" key={gender}><input className="size-4 accent-[#4b3df2]" type="radio" value={gender} {...register('gender', { required: 'Please select a gender.' })} />{gender}</label>)}</div><ErrorMessage error={errors.gender} /></fieldset>
-            <Field label="Profile Photo" error={errors.profilePhoto}><label className="mt-1.5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#cfd8e6] bg-[#fafbff] px-3 py-5 text-sm text-[#667085] transition hover:border-[#6659f5] hover:bg-[#f5f4ff]"><Upload size={18} />Upload profile photo<input className="sr-only" type="file" accept="image/*" {...register('profilePhoto')} /></label></Field>
+            <div className="sm:col-span-2">
+              <Field label="Profile Photo" error={errors.profilePhoto}>
+                <div className="mt-1.5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#ecebff] text-[#4b3df2]">
+                    {photoPreview ? <img className="size-full object-cover" src={photoPreview} alt="Profile preview" /> : <Upload size={20} />}
+                  </span>
+                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#cfd8e6] bg-[#fafbff] px-3 py-5 text-sm text-[#667085] transition hover:border-[#6659f5] hover:bg-[#f5f4ff]">
+                    <Upload size={18} />
+                    {photoPreview ? 'Change profile photo' : 'Upload profile photo'}
+                    <input className="sr-only" type="file" accept="image/*" {...register('profilePhoto')} />
+                  </label>
+                </div>
+              </Field>
+              <p className="mt-1.5 text-xs text-[#667085]">Optional. PNG, JPG, WEBP, or GIF up to 5MB.</p>
+            </div>
           </div>
           <div className="mt-6 flex justify-end gap-3 border-t border-[#e7edf5] pt-5"><button className="rounded-md border border-[#dfe6f0] px-4 py-2.5 text-sm font-medium text-[#344767] transition hover:bg-slate-50" type="button" onClick={closeForm}>Cancel</button><button className="rounded-md bg-[#4b3df2] px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-300 transition hover:bg-[#4032e8] disabled:cursor-not-allowed disabled:opacity-60" type="submit" disabled={isSubmitting}>{isEditMode ? 'Update Employee' : 'Add Employee'}</button></div>
         </form>

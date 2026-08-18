@@ -21,7 +21,7 @@ public class AnnouncementRequest {
     @NotNull(message = "Category is required.")
     private AnnouncementCategory category;
 
-    @NotNull(message = "Department is required.")
+    // Null targets all departments.
     private Long departmentId;
 
     @NotBlank(message = "Message is required.")

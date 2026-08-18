@@ -7,11 +7,24 @@ import ProfileHeader from '../../components/profile/ProfileHeader';
 import PersonalInfoTab from '../../components/profile/PersonalInfoTab';
 import OrganizationTab from '../../components/profile/OrganizationTab';
 import SecurityTab from '../../components/profile/SecurityTab';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { adminProfileData } from '../../data/profileData';
+import { uploadProfilePhoto } from '../../services/authService.js';
+import { getApiError } from '../../utils/apiError.js';
 
 const Profile = () => {
-  const [profile, setProfile] = useState(adminProfileData);
+  const { user, updateUser } = useAuth();
+  const [profile, setProfile] = useState({
+    ...adminProfileData,
+    id: user?.id || adminProfileData.id,
+    name: user?.fullName || adminProfileData.name,
+    email: user?.email || adminProfileData.email,
+    role: user?.role === 'ADMIN' ? 'Super Admin' : user?.role || adminProfileData.role,
+    initials: (user?.fullName || 'AU').split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(),
+    profilePhoto: user?.profilePhoto || null,
+  });
   const [activeTab, setActiveTab] = useState('personal');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const handleSavePersonalInfo = (updatedData) => {
     setProfile((prev) => ({
@@ -35,8 +48,19 @@ const Profile = () => {
     toast.success('Password updated successfully!');
   };
 
-  const handleAvatarChange = () => {
-    toast.info('Profile picture updated!');
+  const handleAvatarChange = async (file) => {
+    setUploadingAvatar(true);
+    try {
+      const updatedUser = await uploadProfilePhoto(file);
+      updateUser(updatedUser);
+      setProfile((prev) => ({ ...prev, profilePhoto: updatedUser.profilePhoto }));
+      toast.success('Profile picture updated!');
+    } catch (error) {
+      toast.error(getApiError(error));
+      throw error;
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const tabs = [
@@ -62,7 +86,7 @@ const Profile = () => {
       </header>
 
       {/* Top Banner Card */}
-      <ProfileHeader profile={profile} onAvatarChange={handleAvatarChange} />
+      <ProfileHeader profile={profile} onAvatarChange={handleAvatarChange} uploading={uploadingAvatar} />
 
       {/* Navigation Tabs */}
       <div className="flex border-b border-[#e2e8f0] bg-white rounded-xl px-2 pt-2 shadow-[0_2px_8px_rgba(16,24,40,0.02)]">

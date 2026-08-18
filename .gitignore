@@ -26,3 +26,5 @@ dist-ssr
 # Java / Maven
 backend/target/
 backend/.mvn/wrapper/maven-wrapper.jar
+
+uploads/

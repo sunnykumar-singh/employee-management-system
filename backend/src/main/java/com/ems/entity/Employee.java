@@ -70,6 +70,9 @@ public class Employee {
     @Column(nullable = false, length = 20)
     private Gender gender;
 
+    @Column(name = "profile_photo", length = 500)
+    private String profilePhoto;
+
     @Builder.Default
     @Column(name = "is_active", nullable = false)
     private boolean active = true;

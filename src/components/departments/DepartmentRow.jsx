@@ -3,10 +3,10 @@ import DepartmentActions from './DepartmentActions.jsx';
 
 const icons = { building: Building2, code: Code2, megaphone: Megaphone, chart: BarChart3, users: Users, wallet: WalletCards, headphones: Headphones, pen: PenLine, shield: ShieldCheck };
 
-const DepartmentRow = ({ department, onView, onEdit, onDelete }) => {
-  const Icon = icons[department.icon];
+const DepartmentRow = ({ department, serialNumber, onView, onEdit, onDelete }) => {
+  const Icon = icons[department.icon] || Building2;
   return <tr className="border-b border-[#edf1f6] last:border-0 hover:bg-[#fafbff]">
-    <td className="px-5 py-3.5 text-[11px] text-[#101828]">{department.id}</td>
+    <td className="px-5 py-3.5 text-[11px] text-[#101828]">{serialNumber}</td>
     <td className="px-5 py-3.5 whitespace-nowrap text-[11px] font-medium text-[#101828]">{department.departmentId}</td>
     <td className="px-5 py-3.5"><div className="flex items-center gap-4"><span className="flex size-10 shrink-0 items-center justify-center rounded-md" style={{ color: department.color, backgroundColor: department.background }}><Icon size={19} /></span><span className="whitespace-nowrap text-[11px] font-medium text-[#101828]">{department.name}</span></div></td>
     <td className="px-5 py-3.5"><div className="flex items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full text-white" style={{ backgroundColor: department.avatar }}>{department.headPhoto ? <img className="size-full object-cover" src={department.headPhoto} alt="" /> : <UserRound size={17} />}</span><span className="whitespace-nowrap text-[11px] text-[#101828]">{department.head}</span></div></td>

@@ -7,11 +7,39 @@ import ProfileHeader from '../../components/profile/ProfileHeader';
 import PersonalInfoTab from '../../components/profile/PersonalInfoTab';
 import OrganizationTab from '../../components/profile/OrganizationTab';
 import SecurityTab from '../../components/profile/SecurityTab';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { employeeProfileData } from '../../data/profileData';
+import { uploadProfilePhoto } from '../../services/authService.js';
+import { getApiError } from '../../utils/apiError.js';
 
 const Profile = () => {
-  const [profile, setProfile] = useState(employeeProfileData);
+  const { user, updateUser } = useAuth();
+  const [profile, setProfile] = useState({
+    ...employeeProfileData,
+    id: user?.id || employeeProfileData.id,
+    name: user?.fullName || employeeProfileData.name,
+    email: user?.email || employeeProfileData.email,
+    role: user?.role || employeeProfileData.role,
+    initials: (user?.fullName || 'JD').split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(),
+    profilePhoto: user?.profilePhoto || null,
+  });
   const [activeTab, setActiveTab] = useState('personal');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarChange = async (file) => {
+    setUploadingAvatar(true);
+    try {
+      const updatedUser = await uploadProfilePhoto(file);
+      updateUser(updatedUser);
+      setProfile((prev) => ({ ...prev, profilePhoto: updatedUser.profilePhoto }));
+      toast.success('Profile picture updated!');
+    } catch (error) {
+      toast.error(getApiError(error));
+      throw error;
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSavePersonalInfo = (updatedData) => {
     setProfile((prev) => ({
@@ -56,7 +84,7 @@ const Profile = () => {
         </div>
       </header>
 
-      <ProfileHeader profile={profile} />
+      <ProfileHeader profile={profile} onAvatarChange={handleAvatarChange} uploading={uploadingAvatar} />
 
       <div className="flex border-b border-[#e2e8f0] bg-white rounded-xl px-2 pt-2 shadow-[0_2px_8px_rgba(16,24,40,0.02)]">
         {tabs.map((tab) => {

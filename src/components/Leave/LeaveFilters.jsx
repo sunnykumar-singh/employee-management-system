@@ -37,6 +37,8 @@ const LeaveFilters = ({ filters, filterOptions, onFilterChange, onReset, searchQ
           <input
             type="date"
             className="w-full rounded-lg border border-[#d0d5dd] py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#4b3df2]"
+            value={filters.date || ''}
+            onChange={(event) => onFilterChange('date', event.target.value)}
           />
         </div>
 

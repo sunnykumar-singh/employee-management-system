@@ -33,7 +33,7 @@ public class AnnouncementService {
                 .announcementId(nextAnnouncementId())
                 .title(request.getTitle().trim())
                 .category(request.getCategory())
-                .department(findDepartment(request.getDepartmentId()))
+                .department(resolveDepartment(request.getDepartmentId()))
                 .message(request.getMessage().trim())
                 .build();
         applyStatus(announcement, request.getStatus() == null ? AnnouncementStatus.DRAFT : request.getStatus(), request.getScheduledAt());
@@ -62,7 +62,7 @@ public class AnnouncementService {
         Announcement announcement = findAnnouncement(id);
         announcement.setTitle(request.getTitle().trim());
         announcement.setCategory(request.getCategory());
-        announcement.setDepartment(findDepartment(request.getDepartmentId()));
+        announcement.setDepartment(resolveDepartment(request.getDepartmentId()));
         announcement.setMessage(request.getMessage().trim());
         if (request.getStatus() != null) {
             applyStatus(announcement, request.getStatus(), request.getScheduledAt());
@@ -160,7 +160,10 @@ public class AnnouncementService {
                 .orElseThrow(() -> new ResourceNotFoundException("Announcement not found"));
     }
 
-    private Department findDepartment(Long departmentId) {
+    private Department resolveDepartment(Long departmentId) {
+        if (departmentId == null) {
+            return null;
+        }
         return departmentRepository
                 .findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));

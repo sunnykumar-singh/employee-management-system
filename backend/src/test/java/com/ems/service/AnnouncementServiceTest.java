@@ -105,6 +105,26 @@ class AnnouncementServiceTest {
     }
 
     @Test
+    void createAllowsCompanyWideAnnouncement() {
+        request.setDepartmentId(null);
+        when(announcementRepository.count()).thenReturn(0L);
+        when(announcementRepository.existsByAnnouncementIdIgnoreCase("ANN001")).thenReturn(false);
+        when(announcementRepository.save(any(Announcement.class))).thenAnswer(invocation -> {
+            Announcement saved = invocation.getArgument(0);
+            saved.setId(2L);
+            return saved;
+        });
+
+        var response = announcementService.create(request);
+
+        assertThat(response.getDepartment().getName()).isEqualTo("All Departments");
+        ArgumentCaptor<Announcement> captor = ArgumentCaptor.forClass(Announcement.class);
+        verify(announcementRepository).save(captor.capture());
+        assertThat(captor.getValue().getDepartment()).isNull();
+        verify(departmentRepository, never()).findById(any());
+    }
+
+    @Test
     void publishDraftAnnouncement() {
         when(announcementRepository.findById(1L)).thenReturn(Optional.of(announcement));
         when(announcementRepository.save(any(Announcement.class))).thenReturn(announcement);

@@ -2,7 +2,7 @@ import AnnouncementRow from "./AnnouncementRow";
 import Pagination from "../common/Pagination";
 import EmptyState from "../employees/EmptyState";
 
-const AnnouncementTable = ({ announcements, currentPage, pageSize, totalItems, onPageChange, onPageSizeChange, onView, onDelete }) => {
+const AnnouncementTable = ({ announcements, currentPage, pageSize, totalItems, onPageChange, onPageSizeChange, onView, onEdit, onDelete }) => {
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-[#e7edf5] bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -24,9 +24,10 @@ const AnnouncementTable = ({ announcements, currentPage, pageSize, totalItems, o
               {announcements.map((announcement, index) => (
                 <AnnouncementRow
                   key={announcement.id}
-                  index={index}
+                  serialNumber={(currentPage - 1) * pageSize + index + 1}
                   announcement={announcement}
                   onView={onView}
+                  onEdit={onEdit}
                   onDelete={onDelete}
                 />
               ))}

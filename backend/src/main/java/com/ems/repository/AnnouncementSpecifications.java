@@ -28,6 +28,9 @@ public final class AnnouncementSpecifications {
         if (departmentId == null) {
             return null;
         }
-        return (root, query, builder) -> builder.equal(root.get("department").get("id"), departmentId);
+        // Include company-wide announcements (null department) plus the selected department.
+        return (root, query, builder) -> builder.or(
+                builder.isNull(root.get("department")),
+                builder.equal(root.get("department").get("id"), departmentId));
     }
 }

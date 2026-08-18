@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public EmployeeResponse create(EmployeeRequest request) {
@@ -100,6 +102,17 @@ public class EmployeeService {
         Employee employee = findActiveEmployee(id);
         employee.setActive(false);
         employeeRepository.save(employee);
+    }
+
+    @Transactional
+    public EmployeeResponse updateProfilePhoto(Long id, MultipartFile file) {
+        Employee employee = findActiveEmployee(id);
+        String previous = employee.getProfilePhoto();
+        String storedPath = fileStorageService.store(file, "employees");
+        employee.setProfilePhoto(storedPath);
+        EmployeeResponse response = EmployeeResponse.from(employeeRepository.save(employee));
+        fileStorageService.deleteQuietly(previous);
+        return response;
     }
 
     private Employee findActiveEmployee(Long id) {

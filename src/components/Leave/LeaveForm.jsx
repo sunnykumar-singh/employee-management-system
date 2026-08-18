@@ -12,7 +12,7 @@ const LeaveForm = ({ leave, isOpen, onClose, onSave }) => {
 
   useEffect(() => {
     if (!isOpen || !leave) return;
-    reset({ leaveType: leave.leaveType, from: leave.from, to: leave.to, reason: leave.reason });
+    reset({ leaveType: leave.leaveType, from: leave.fromDate || leave.from, to: leave.toDate || leave.to, reason: leave.reason });
   }, [isOpen, leave, reset]);
 
   if (!isOpen || !leave) return null;
@@ -46,12 +46,12 @@ const LeaveForm = ({ leave, isOpen, onClose, onSave }) => {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-[#344767]">From Date</label>
-              <input type="text" className="w-full rounded-lg border border-[#d0d5dd] px-4 py-2.5 text-sm" {...register('from')} />
+              <input type="date" className="w-full rounded-lg border border-[#d0d5dd] px-4 py-2.5 text-sm" {...register('from')} />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-[#344767]">To Date</label>
-              <input type="text" className="w-full rounded-lg border border-[#d0d5dd] px-4 py-2.5 text-sm" {...register('to')} />
+              <input type="date" className="w-full rounded-lg border border-[#d0d5dd] px-4 py-2.5 text-sm" {...register('to')} />
             </div>
           </div>
 

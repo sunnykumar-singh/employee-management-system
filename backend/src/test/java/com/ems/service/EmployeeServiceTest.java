@@ -36,6 +36,9 @@ class EmployeeServiceTest {
     @Mock
     private DepartmentRepository departmentRepository;
 
+    @Mock
+    private FileStorageService fileStorageService;
+
     @InjectMocks
     private EmployeeService employeeService;
 

@@ -19,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -43,6 +44,11 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/announcements/**", "/api/leaves/**", "/api/departments/**")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/users/me/photo").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
                         .requestMatchers(
                                 "/api/employees/**",
                                 "/api/departments/**",

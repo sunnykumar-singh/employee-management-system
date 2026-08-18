@@ -22,6 +22,7 @@ public class EmployeeResponse {
     private LocalDate joiningDate;
     private EmployeeStatus status;
     private Gender gender;
+    private String profilePhoto;
 
     @JsonProperty("isActive")
     private boolean isActive;
@@ -43,6 +44,7 @@ public class EmployeeResponse {
                 .joiningDate(employee.getJoiningDate())
                 .status(employee.getStatus())
                 .gender(employee.getGender())
+                .profilePhoto(employee.getProfilePhoto())
                 .isActive(employee.isActive())
                 .annualLeaveBalance(employee.getAnnualLeaveBalance())
                 .sickLeaveBalance(employee.getSickLeaveBalance())

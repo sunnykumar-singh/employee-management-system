@@ -31,12 +31,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/leaves")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class LeaveController {
 
     private final LeaveService leaveService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<LeaveResponse>> create(@Valid @RequestBody LeaveRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Leave request created successfully", leaveService.create(request)));
@@ -61,24 +61,28 @@ public class LeaveController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<LeaveResponse>> update(
             @PathVariable Long id, @Valid @RequestBody LeaveRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Leave request updated successfully", leaveService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         leaveService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Leave request deleted successfully", null));
     }
 
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<LeaveResponse>> approve(
             @PathVariable Long id, @Valid @RequestBody(required = false) LeaveDecisionRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Leave request approved successfully", leaveService.approve(id, request)));
     }
 
     @PostMapping("/{id}/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<LeaveResponse>> reject(
             @PathVariable Long id, @Valid @RequestBody(required = false) LeaveDecisionRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Leave request rejected successfully", leaveService.reject(id, request)));

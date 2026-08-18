@@ -23,4 +23,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>, J
     boolean existsByEmployeeIdAndDate(Long employeeId, LocalDate date);
 
     boolean existsByEmployeeIdAndDateAndIdNot(Long employeeId, LocalDate date, Long id);
+
+    void deleteByEmployeeId(Long employeeId);
 }

@@ -13,10 +13,21 @@ public class DepartmentSummary {
     private String name;
 
     public static DepartmentSummary from(Department department) {
+        if (department == null) {
+            return null;
+        }
         return DepartmentSummary.builder()
                 .id(department.getId())
                 .departmentId(department.getDepartmentId())
                 .name(department.getName())
+                .build();
+    }
+
+    public static DepartmentSummary allDepartments() {
+        return DepartmentSummary.builder()
+                .id(null)
+                .departmentId(null)
+                .name("All Departments")
                 .build();
     }
 }

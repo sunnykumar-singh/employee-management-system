@@ -39,6 +39,9 @@ class AuthServiceTest {
     @Mock
     private JwtProperties jwtProperties;
 
+    @Mock
+    private FileStorageService fileStorageService;
+
     @InjectMocks
     private AuthService authService;
 

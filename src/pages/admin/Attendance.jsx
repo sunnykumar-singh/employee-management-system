@@ -1,54 +1,175 @@
-import { useMemo, useState } from 'react';
-import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal.jsx';
+import { useCallback, useEffect, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import AttendanceFilters from '../../components/attendance/AttendanceFilters.jsx';
 import AttendanceHeader from '../../components/attendance/AttendanceHeader.jsx';
 import AttendanceRecordModal from '../../components/attendance/AttendanceRecordModal.jsx';
 import AttendanceStats from '../../components/attendance/AttendanceStats.jsx';
 import AttendanceTable from '../../components/attendance/AttendanceTable.jsx';
-import { attendanceRecords } from '../../data/attendanceData.js';
+import LoadingState from '../../components/common/LoadingState.jsx';
+import useDebouncedValue from '../../hooks/useDebouncedValue.js';
+import { listAttendance, updateAttendance } from '../../services/attendanceService.js';
+import { listDepartments } from '../../services/departmentService.js';
+import { listEmployees } from '../../services/employeeService.js';
+import { getApiError } from '../../utils/apiError.js';
+import { mapAttendance, mapDepartment, toAttendancePayload } from '../../utils/mappers.js';
 
-const formatDate = (date) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(`${date}T00:00:00`));
-const downloadFile = (contents, filename, type) => { const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([contents], { type })); link.download = filename; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(link.href); };
-const csvValue = (value) => `"${String(value).replaceAll('"', '""')}"`;
-const createPdf = (records) => {
-  const text = ['Attendance Records', ...records.map((record) => `${record.employeeId}  ${record.name}  ${record.status}  ${record.date}`)].join('\n').replaceAll('\\', '\\\\').replaceAll('(', '\\(').replaceAll(')', '\\)');
-  const stream = `BT /F1 12 Tf 50 760 Td 15 TL (${text.replaceAll('\n', ') Tj T* (')}) Tj ET`;
-  const objects = [`<< /Type /Catalog /Pages 2 0 R >>`, `<< /Type /Pages /Kids [3 0 R] /Count 1 >>`, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>`, `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>`, `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`];
-  let pdf = '%PDF-1.4\n'; const offsets = [0]; objects.forEach((object, index) => { offsets.push(pdf.length); pdf += `${index + 1} 0 obj\n${object}\nendobj\n`; }); const xref = pdf.length; pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n `).join('\n')}\ntrailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return pdf;
+const today = new Date().toISOString().slice(0, 10);
+
+const downloadFile = (contents, filename, type) => {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([contents], { type }));
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
 };
 
 const Attendance = () => {
-  const [draftFilters, setDraftFilters] = useState({ date: '2026-05-24', department: 'Department', designation: 'Designation', status: 'All Status' });
-  const [records, setRecords] = useState(attendanceRecords);
+  const [draftFilters, setDraftFilters] = useState({ date: today, department: 'Department', designation: 'Designation', status: 'All Status' });
   const [appliedFilters, setAppliedFilters] = useState(draftFilters);
+  const [records, setRecords] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [modalMode, setModalMode] = useState(null);
-  const filteredRecords = useMemo(() => records.filter((record) => record.date === formatDate(appliedFilters.date) && (appliedFilters.department === 'Department' || record.department === appliedFilters.department) && (appliedFilters.designation === 'Designation' || record.designation === appliedFilters.designation) && (appliedFilters.status === 'All Status' || record.status === appliedFilters.status)), [appliedFilters, records]);
-  const searchedRecords = useMemo(() => { const query = searchQuery.trim().toLowerCase(); return filteredRecords.filter((record) => !query || [record.employeeId, record.name, record.department, record.designation].some((field) => field.toLowerCase().includes(query))); }, [filteredRecords, searchQuery]);
-  const totalPages = Math.max(Math.ceil(searchedRecords.length / pageSize), 1);
-  const activePage = Math.min(currentPage, totalPages);
-  const paginatedRecords = useMemo(() => searchedRecords.slice((activePage - 1) * pageSize, activePage * pageSize), [activePage, searchedRecords, pageSize]);
-  const updateFilter = (name, value) => setDraftFilters((currentFilters) => ({ ...currentFilters, [name]: value }));
-  const applyFilters = () => { setAppliedFilters(draftFilters); setCurrentPage(1); };
-  const exportExcel = () => { const columns = ['Employee ID', 'Employee Name', 'Department', 'Designation', 'Date', 'Check In', 'Check Out', 'Status', 'Working Hours']; const rows = filteredRecords.map((record) => [record.employeeId, record.name, record.department, record.designation, record.date, record.checkIn, record.checkOut, record.status, record.workingHours]); downloadFile([columns, ...rows].map((row) => row.map(csvValue).join(',')).join('\n'), 'attendance-records.csv', 'text/csv;charset=utf-8'); };
-  const exportPdf = () => downloadFile(createPdf(filteredRecords), 'attendance-records.pdf', 'application/pdf');
-  const openModal = (record, mode) => { setSelectedRecord(record); setModalMode(mode); };
-  const closeModal = () => { setSelectedRecord(null); setModalMode(null); };
-  const saveRecord = (updatedRecord) => { setRecords((currentRecords) => currentRecords.map((record) => record.id === updatedRecord.id ? updatedRecord : record)); closeModal(); };
-  const updateSearchQuery = (value) => { setSearchQuery(value); setCurrentPage(1); };
-  const toggleRecord = (id) => setSelectedIds((currentIds) => currentIds.includes(id) ? currentIds.filter((currentId) => currentId !== id) : [...currentIds, id]);
-  const toggleAll = (ids) => setSelectedIds((currentIds) => {
-    if (ids.every((id) => currentIds.includes(id))) return currentIds.filter((id) => !ids.includes(id));
-    return [...new Set([...currentIds, ...ids])];
-  });
-  const updateSelectedStatuses = (status) => { setRecords((currentRecords) => currentRecords.map((record) => selectedIds.includes(record.id) ? { ...record, status } : record)); setSelectedIds([]); };
+  const [loading, setLoading] = useState(true);
+  const [totals, setTotals] = useState({});
+  const debouncedSearch = useDebouncedValue(searchQuery);
 
-  return <div className="mx-auto max-w-[1280px] space-y-4"><AttendanceHeader /><AttendanceStats /><AttendanceFilters filters={draftFilters} onFilterChange={updateFilter} onApplyFilters={applyFilters} onExportExcel={exportExcel} onExportPdf={exportPdf} /><AttendanceTable records={paginatedRecords} currentPage={activePage} pageSize={pageSize} totalItems={searchedRecords.length} onPageChange={setCurrentPage} onPageSizeChange={(value) => { setPageSize(value); setCurrentPage(1); }} onView={(record) => openModal(record, 'view')} onEdit={(record) => openModal(record, 'edit')} onTime={(record) => openModal(record, 'time')} searchQuery={searchQuery} onSearchChange={updateSearchQuery} selectedIds={selectedIds} onToggleRecord={toggleRecord} onToggleAll={toggleAll} onBulkStatusChange={updateSelectedStatuses} /><AttendanceRecordModal record={selectedRecord} mode={modalMode} isOpen={Boolean(modalMode)} onClose={closeModal} onSave={saveRecord} /><DeleteConfirmationModal isOpen={false} itemName="" onClose={() => {}} onConfirm={() => {}} /></div>;
+  const loadRecords = useCallback(async () => {
+    setLoading(true);
+    try {
+      const departmentId = departments.find((department) => department.name === appliedFilters.department)?.id;
+      const status = appliedFilters.status === 'All Status' ? undefined : appliedFilters.status.toUpperCase();
+      const page = await listAttendance({
+        page: currentPage - 1,
+        size: pageSize,
+        search: debouncedSearch || undefined,
+        date: appliedFilters.date || undefined,
+        status,
+        departmentId,
+      });
+      const mapped = (page.content || []).map(mapAttendance);
+      const visible = appliedFilters.designation === 'Designation'
+        ? mapped
+        : mapped.filter((record) => record.designation === appliedFilters.designation);
+      setRecords(visible);
+      setTotalItems(page.totalElements || 0);
+    } catch (error) {
+      toast.error(getApiError(error));
+    } finally {
+      setLoading(false);
+    }
+  }, [appliedFilters, currentPage, debouncedSearch, departments, pageSize]);
+
+  const loadTotals = useCallback(async () => {
+    try {
+      const [present, absent, late, employees] = await Promise.all([
+        listAttendance({ page: 0, size: 1, date: appliedFilters.date, status: 'PRESENT' }),
+        listAttendance({ page: 0, size: 1, date: appliedFilters.date, status: 'ABSENT' }),
+        listAttendance({ page: 0, size: 1, date: appliedFilters.date, status: 'LATE' }),
+        listEmployees({ page: 0, size: 1 }),
+      ]);
+      const totalMarked = (present.totalElements || 0) + (absent.totalElements || 0) + (late.totalElements || 0);
+      const rate = totalMarked ? `${Math.round(((present.totalElements || 0) / totalMarked) * 100)}%` : '0%';
+      setTotals({
+        present: present.totalElements || 0,
+        absent: absent.totalElements || 0,
+        late: late.totalElements || 0,
+        employees: employees.totalElements || 0,
+        rate,
+      });
+    } catch {
+      setTotals({});
+    }
+  }, [appliedFilters.date]);
+
+  useEffect(() => {
+    listDepartments({ page: 0, size: 100 })
+      .then((page) => setDepartments((page.content || []).map(mapDepartment)))
+      .catch((error) => toast.error(getApiError(error)));
+  }, []);
+
+  useEffect(() => {
+    loadRecords();
+  }, [loadRecords]);
+
+  useEffect(() => {
+    loadTotals();
+  }, [loadTotals]);
+
+  const saveRecord = async (updatedRecord) => {
+    try {
+      await updateAttendance(updatedRecord.id, toAttendancePayload(updatedRecord));
+      toast.success('Attendance updated successfully.');
+      setSelectedRecord(null);
+      setModalMode(null);
+      await Promise.all([loadRecords(), loadTotals()]);
+    } catch (error) {
+      toast.error(getApiError(error));
+    }
+  };
+
+  const updateSelectedStatuses = async (status) => {
+    try {
+      await Promise.all(selectedIds.map((id) => {
+        const record = records.find((item) => item.id === id);
+        return record ? updateAttendance(id, toAttendancePayload({ ...record, status })) : Promise.resolve();
+      }));
+      setSelectedIds([]);
+      toast.success('Attendance statuses updated.');
+      await Promise.all([loadRecords(), loadTotals()]);
+    } catch (error) {
+      toast.error(getApiError(error));
+    }
+  };
+
+  const exportExcel = () => {
+    const columns = ['Employee ID', 'Employee Name', 'Department', 'Designation', 'Date', 'Check In', 'Check Out', 'Status', 'Working Hours'];
+    const rows = records.map((record) => [record.employeeId, record.name, record.department, record.designation, record.date, record.checkIn, record.checkOut, record.status, record.workingHours]);
+    downloadFile([columns, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n'), 'attendance-records.csv', 'text/csv;charset=utf-8');
+  };
+
+  return (
+    <div className="mx-auto max-w-[1280px] space-y-4">
+      <AttendanceHeader />
+      <AttendanceStats totals={totals} />
+      <AttendanceFilters
+        filters={draftFilters}
+        departments={departments}
+        onFilterChange={(name, value) => setDraftFilters((current) => ({ ...current, [name]: value }))}
+        onApplyFilters={() => { setAppliedFilters(draftFilters); setCurrentPage(1); }}
+        onExportExcel={exportExcel}
+        onExportPdf={() => toast.info('CSV export is available from Export Excel.')}
+      />
+      {loading ? <LoadingState label="Loading attendance..." /> : (
+        <AttendanceTable
+          records={records}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(value) => { setPageSize(value); setCurrentPage(1); }}
+          onView={(record) => { setSelectedRecord(record); setModalMode('view'); }}
+          onEdit={(record) => { setSelectedRecord(record); setModalMode('edit'); }}
+          onTime={(record) => { setSelectedRecord(record); setModalMode('time'); }}
+          searchQuery={searchQuery}
+          onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }}
+          selectedIds={selectedIds}
+          onToggleRecord={(id) => setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])}
+          onToggleAll={(ids) => setSelectedIds((current) => ids.every((id) => current.includes(id)) ? current.filter((id) => !ids.includes(id)) : [...new Set([...current, ...ids])])}
+          onBulkStatusChange={updateSelectedStatuses}
+        />
+      )}
+      <AttendanceRecordModal record={selectedRecord} mode={modalMode} isOpen={Boolean(modalMode)} onClose={() => { setSelectedRecord(null); setModalMode(null); }} onSave={saveRecord} />
+      <ToastContainer position="top-right" theme="light" />
+    </div>
+  );
 };
 
 export default Attendance;

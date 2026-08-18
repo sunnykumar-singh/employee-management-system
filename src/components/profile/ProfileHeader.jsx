@@ -1,23 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Camera, CheckCircle2, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
 
-const ProfileHeader = ({ profile, onAvatarChange }) => {
-  const [avatarPreview, setAvatarPreview] = useState(null);
+const ProfileHeader = ({ profile, onAvatarChange, uploading = false }) => {
+  const [avatarPreview, setAvatarPreview] = useState(profile?.profilePhoto || null);
 
-  const handleImageUpload = (e) => {
+  useEffect(() => {
+    setAvatarPreview(profile?.profilePhoto || null);
+  }, [profile?.profilePhoto]);
+
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAvatarPreview(url);
-      if (onAvatarChange) onAvatarChange(url);
+    if (!file) return;
+
+    const localUrl = URL.createObjectURL(file);
+    setAvatarPreview(localUrl);
+    try {
+      if (onAvatarChange) {
+        await onAvatarChange(file);
+      }
+    } catch {
+      setAvatarPreview(profile?.profilePhoto || null);
+    } finally {
+      e.target.value = '';
     }
   };
 
   return (
     <div className="rounded-2xl border border-[#e2e8f0] bg-white p-6 shadow-[0_3px_12px_rgba(16,24,40,0.02)]">
-      {/* Top Main Section */}
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        {/* Avatar & Info */}
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
           <div className="relative group size-24 rounded-2xl bg-[linear-gradient(135deg,#03142d,#4f46e5)] text-white shadow-md flex items-center justify-center overflow-hidden shrink-0">
             {avatarPreview ? (
@@ -25,10 +35,10 @@ const ProfileHeader = ({ profile, onAvatarChange }) => {
             ) : (
               <span className="text-3xl font-extrabold tracking-wider text-white">{profile.initials}</span>
             )}
-            <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer">
+            <label className={`absolute inset-0 flex flex-col items-center justify-center bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer ${uploading ? 'pointer-events-none opacity-100' : ''}`}>
               <Camera size={18} />
-              <span className="text-[10px] font-semibold mt-1">Change</span>
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              <span className="text-[10px] font-semibold mt-1">{uploading ? 'Uploading...' : 'Change'}</span>
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading || !onAvatarChange} />
             </label>
           </div>
 
@@ -55,7 +65,6 @@ const ProfileHeader = ({ profile, onAvatarChange }) => {
           </div>
         </div>
 
-        {/* Right Badges */}
         <div className="flex items-center gap-3 self-start lg:self-center">
           <span className="rounded-xl border border-[#cbd5e1] bg-[#f8fafc] px-4 py-2 text-xs font-bold text-[#1e293b] shadow-2xs">
             ID: {profile.id}
@@ -63,7 +72,6 @@ const ProfileHeader = ({ profile, onAvatarChange }) => {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 gap-3 border-t border-[#f1f5f9] mt-6 pt-5 sm:grid-cols-4">
         {Object.entries(profile.stats || {}).map(([key, val]) => (
           <div key={key} className="rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-3.5 text-center sm:text-left transition hover:border-[#cbd5e1]">

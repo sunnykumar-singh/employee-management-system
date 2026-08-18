@@ -5,17 +5,22 @@ import com.ems.dto.DepartmentResponse;
 import com.ems.dto.PageResponse;
 import com.ems.entity.Department;
 import com.ems.entity.DepartmentStatus;
+import com.ems.entity.Employee;
 import com.ems.exception.ConflictException;
 import com.ems.exception.ResourceNotFoundException;
+import com.ems.repository.AttendanceRepository;
 import com.ems.repository.DepartmentRepository;
 import com.ems.repository.DepartmentSpecifications;
 import com.ems.repository.EmployeeRepository;
+import com.ems.repository.LeaveRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,9 @@ public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final LeaveRepository leaveRepository;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public DepartmentResponse create(DepartmentRequest request) {
@@ -87,10 +95,31 @@ public class DepartmentService {
     @Transactional
     public void delete(Long id) {
         Department department = findDepartment(id);
-        if (employeeRepository.existsByDepartmentId(id)) {
+        // Match the UI employeeCount: only active employees block deletion.
+        if (employeeRepository.existsByDepartmentIdAndActiveTrue(id)) {
             throw new ConflictException("Cannot delete a department that is assigned to employees");
         }
+
+        // Soft-deleted employees still hold the FK; remove them (and related rows) first.
+        List<Employee> inactiveEmployees = employeeRepository.findByDepartmentIdAndActiveFalse(id);
+        for (Employee employee : inactiveEmployees) {
+            attendanceRepository.deleteByEmployeeId(employee.getId());
+            leaveRepository.deleteByEmployeeId(employee.getId());
+            employeeRepository.delete(employee);
+        }
+
         departmentRepository.delete(department);
+    }
+
+    @Transactional
+    public DepartmentResponse updateHeadPhoto(Long id, MultipartFile file) {
+        Department department = findDepartment(id);
+        String previous = department.getHeadPhoto();
+        String storedPath = fileStorageService.store(file, "departments");
+        department.setHeadPhoto(storedPath);
+        DepartmentResponse response = toResponse(departmentRepository.save(department));
+        fileStorageService.deleteQuietly(previous);
+        return response;
     }
 
     private Department findDepartment(Long id) {

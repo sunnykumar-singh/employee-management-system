@@ -1,0 +1,27 @@
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
+
+const homeForRole = (role) => (role === 'ADMIN' ? '/admin/dashboard' : '/employee/dashboard');
+
+export const ProtectedRoute = ({ roles }) => {
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (roles?.length && !roles.includes(user.role)) {
+    return <Navigate to={homeForRole(user.role)} replace />;
+  }
+
+  return <Outlet />;
+};
+
+export const GuestRoute = () => {
+  const { isAuthenticated, user } = useAuth();
+  if (isAuthenticated) {
+    return <Navigate to={homeForRole(user.role)} replace />;
+  }
+  return <Outlet />;
+};

@@ -14,6 +14,7 @@ public class DepartmentResponse {
     private String name;
     private String head;
     private String description;
+    private String headPhoto;
     private DepartmentStatus status;
     private long employeeCount;
 
@@ -24,6 +25,7 @@ public class DepartmentResponse {
                 .name(department.getName())
                 .head(department.getHead())
                 .description(department.getDescription())
+                .headPhoto(department.getHeadPhoto())
                 .status(department.getStatus())
                 .employeeCount(employeeCount)
                 .build();

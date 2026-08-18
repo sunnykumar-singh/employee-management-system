@@ -14,8 +14,8 @@ const Register = () => {
   } = useForm({ mode: 'onTouched' });
 
   const onSubmit = () => {
-    toast.success('Registration successful! Redirecting to login...');
-    setTimeout(() => navigate('/login'), 1200);
+    toast.info('Self-registration is not available. Please contact an administrator.');
+    navigate('/login');
   };
   const onInvalid = () => toast.error('Please correct the highlighted fields.');
 

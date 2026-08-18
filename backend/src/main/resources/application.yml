@@ -5,6 +5,11 @@ spring:
   application:
     name: employee-management-system
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/ems_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
@@ -22,6 +27,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 app:
+  upload-dir: uploads
   jwt:
     secret: ThisIsADevelopmentOnlySecretKeyThatIsAtLeastThirtyTwoBytes
     expiration-ms: 86400000

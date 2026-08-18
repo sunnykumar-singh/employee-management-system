@@ -28,12 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/announcements")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class AnnouncementController {
 
     private final AnnouncementService announcementService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> create(@Valid @RequestBody AnnouncementRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Announcement created successfully", announcementService.create(request)));
@@ -56,6 +56,7 @@ public class AnnouncementController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> update(
             @PathVariable Long id, @Valid @RequestBody AnnouncementRequest request) {
         return ResponseEntity.ok(
@@ -63,18 +64,21 @@ public class AnnouncementController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         announcementService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Announcement deleted successfully", null));
     }
 
     @PostMapping("/{id}/publish")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> publish(@PathVariable Long id) {
         return ResponseEntity.ok(
                 ApiResponse.success("Announcement published successfully", announcementService.publish(id)));
     }
 
     @PostMapping("/{id}/schedule")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> schedule(
             @PathVariable Long id, @Valid @RequestBody AnnouncementScheduleRequest request) {
         return ResponseEntity.ok(
@@ -82,6 +86,7 @@ public class AnnouncementController {
     }
 
     @PostMapping("/{id}/archive")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AnnouncementResponse>> archive(@PathVariable Long id) {
         return ResponseEntity.ok(
                 ApiResponse.success("Announcement archived successfully", announcementService.archive(id)));

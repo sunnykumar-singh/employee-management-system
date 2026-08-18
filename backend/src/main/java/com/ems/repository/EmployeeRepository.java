@@ -1,6 +1,7 @@
 package com.ems.repository;
 
 import com.ems.entity.Employee;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
 
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
 
-    boolean existsByDepartmentId(Long departmentId);
+    boolean existsByDepartmentIdAndActiveTrue(Long departmentId);
+
+    List<Employee> findByDepartmentIdAndActiveFalse(Long departmentId);
 
     long countByDepartmentIdAndActiveTrue(Long departmentId);
 }

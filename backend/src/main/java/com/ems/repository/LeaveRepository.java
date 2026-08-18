@@ -56,4 +56,6 @@ public interface LeaveRepository extends JpaRepository<Leave, Long>, JpaSpecific
             @Param("leaveType") LeaveType leaveType,
             @Param("statuses") Collection<LeaveStatus> statuses,
             @Param("excludeId") Long excludeId);
+
+    void deleteByEmployeeId(Long employeeId);
 }

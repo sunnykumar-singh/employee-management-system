@@ -48,14 +48,25 @@ public class Department {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "head_photo", length = 500)
+    private String headPhoto;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private DepartmentStatus status;
 
-    @Column(nullable = false, updatable = false)
+    // Defaults allow ddl-auto to add these NOT NULL columns on a non-empty departments table.
+    @Column(
+            name = "created_at",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "datetime(6) not null default current_timestamp(6)")
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(
+            name = "updated_at",
+            nullable = false,
+            columnDefinition = "datetime(6) not null default current_timestamp(6) on update current_timestamp(6)")
     private Instant updatedAt;
 
     @PrePersist

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -64,5 +66,12 @@ public class EmployeeController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         employeeService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Employee deleted successfully", null));
+    }
+
+    @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<EmployeeResponse>> uploadPhoto(
+            @PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Profile photo uploaded successfully", employeeService.updateProfilePhoto(id, file)));
     }
 }

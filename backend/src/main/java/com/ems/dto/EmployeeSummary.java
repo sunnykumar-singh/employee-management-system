@@ -12,6 +12,7 @@ public class EmployeeSummary {
     private String employeeId;
     private String fullName;
     private String designation;
+    private String profilePhoto;
     private DepartmentSummary department;
 
     public static EmployeeSummary from(Employee employee) {
@@ -20,6 +21,7 @@ public class EmployeeSummary {
                 .employeeId(employee.getEmployeeId())
                 .fullName(employee.getFullName())
                 .designation(employee.getDesignation())
+                .profilePhoto(employee.getProfilePhoto())
                 .department(DepartmentSummary.from(employee.getDepartment()))
                 .build();
     }

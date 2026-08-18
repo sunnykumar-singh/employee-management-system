@@ -43,8 +43,9 @@ public class Announcement {
     @Column(nullable = false, length = 20)
     private AnnouncementCategory category;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "department_id", nullable = false)
+    // Null means the announcement applies to all departments.
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "department_id", nullable = true)
     private Department department;
 
     @Column(nullable = false, length = 2000)

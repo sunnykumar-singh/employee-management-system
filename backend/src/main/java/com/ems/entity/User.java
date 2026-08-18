@@ -50,6 +50,9 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Column(name = "profile_photo", length = 500)
+    private String profilePhoto;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean enabled = true;

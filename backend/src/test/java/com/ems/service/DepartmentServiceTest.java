@@ -11,10 +11,14 @@ import com.ems.dto.DepartmentRequest;
 import com.ems.dto.DepartmentResponse;
 import com.ems.entity.Department;
 import com.ems.entity.DepartmentStatus;
+import com.ems.entity.Employee;
 import com.ems.exception.ConflictException;
 import com.ems.exception.ResourceNotFoundException;
+import com.ems.repository.AttendanceRepository;
 import com.ems.repository.DepartmentRepository;
 import com.ems.repository.EmployeeRepository;
+import com.ems.repository.LeaveRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +36,15 @@ class DepartmentServiceTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
+
+    @Mock
+    private AttendanceRepository attendanceRepository;
+
+    @Mock
+    private LeaveRepository leaveRepository;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private DepartmentService departmentService;
@@ -98,7 +111,8 @@ class DepartmentServiceTest {
     @Test
     void deleteRemovesUnassignedDepartment() {
         when(departmentRepository.findById(9L)).thenReturn(Optional.of(department));
-        when(employeeRepository.existsByDepartmentId(9L)).thenReturn(false);
+        when(employeeRepository.existsByDepartmentIdAndActiveTrue(9L)).thenReturn(false);
+        when(employeeRepository.findByDepartmentIdAndActiveFalse(9L)).thenReturn(List.of());
 
         departmentService.delete(9L);
 
@@ -106,14 +120,30 @@ class DepartmentServiceTest {
     }
 
     @Test
+    void deleteRemovesDepartmentWhenOnlyInactiveEmployeesRemain() {
+        Employee inactive = Employee.builder().id(42L).active(false).build();
+        when(departmentRepository.findById(9L)).thenReturn(Optional.of(department));
+        when(employeeRepository.existsByDepartmentIdAndActiveTrue(9L)).thenReturn(false);
+        when(employeeRepository.findByDepartmentIdAndActiveFalse(9L)).thenReturn(List.of(inactive));
+
+        departmentService.delete(9L);
+
+        verify(attendanceRepository).deleteByEmployeeId(42L);
+        verify(leaveRepository).deleteByEmployeeId(42L);
+        verify(employeeRepository).delete(inactive);
+        verify(departmentRepository).delete(department);
+    }
+
+    @Test
     void deleteRejectsDepartmentAssignedToEmployees() {
         when(departmentRepository.findById(9L)).thenReturn(Optional.of(department));
-        when(employeeRepository.existsByDepartmentId(9L)).thenReturn(true);
+        when(employeeRepository.existsByDepartmentIdAndActiveTrue(9L)).thenReturn(true);
 
         assertThatThrownBy(() -> departmentService.delete(9L))
                 .isInstanceOf(ConflictException.class)
                 .hasMessage("Cannot delete a department that is assigned to employees");
 
         verify(departmentRepository, never()).delete(any(Department.class));
+        verify(employeeRepository, never()).delete(any(Employee.class));
     }
 }

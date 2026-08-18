@@ -10,6 +10,8 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
 import SidebarItem from './SidebarItem.jsx';
 
 const navigationItems = [
@@ -24,10 +26,18 @@ const navigationItems = [
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const handleItemClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       onClose();
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -73,7 +83,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         </nav>
 
         <div className="mt-5 border-t border-white/15 pt-4">
-          <SidebarItem label="Logout" icon={LogOut} onClick={handleItemClick} />
+          <SidebarItem label="Logout" icon={LogOut} onClick={handleLogout} />
         </div>
       </aside>
     </>

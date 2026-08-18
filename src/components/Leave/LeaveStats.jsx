@@ -6,29 +6,29 @@ import {
 } from "lucide-react";
 import StatCard from "./StatCard";
 
-const LeaveStats = () => {
+const LeaveStats = ({ totals = {} }) => {
   const stats = [
     {
       title: "Total Requests",
-      value: 128,
+      value: totals.total ?? 0,
       icon: ClipboardList,
       color: "bg-blue-100 text-blue-600",
     },
     {
       title: "Approved",
-      value: 92,
+      value: totals.approved ?? 0,
       icon: CheckCircle2,
       color: "bg-green-100 text-green-600",
     },
     {
       title: "Pending",
-      value: 24,
+      value: totals.pending ?? 0,
       icon: Clock3,
       color: "bg-yellow-100 text-yellow-600",
     },
     {
       title: "Rejected",
-      value: 12,
+      value: totals.rejected ?? 0,
       icon: XCircle,
       color: "bg-red-100 text-red-600",
     },

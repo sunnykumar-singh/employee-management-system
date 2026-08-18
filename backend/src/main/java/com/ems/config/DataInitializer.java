@@ -54,7 +54,8 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedDepartments() {
         DEPARTMENT_SEEDS.forEach(seed -> {
-            if (departmentRepository.existsByNameIgnoreCase(seed.name())) {
+            if (departmentRepository.existsByNameIgnoreCase(seed.name())
+                    || departmentRepository.existsByDepartmentIdIgnoreCase(seed.departmentId())) {
                 return;
             }
 

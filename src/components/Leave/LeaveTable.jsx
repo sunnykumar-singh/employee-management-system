@@ -30,7 +30,7 @@ const LeaveTable = ({ leaves, currentPage, pageSize, totalItems, onPageChange, o
               {leaves.map((leave, index) => (
                 <LeaveRow
                   key={leave.id}
-                  index={index}
+                  serialNumber={(currentPage - 1) * pageSize + index + 1}
                   leave={leave}
                   onView={onView}
                   onEdit={onEdit}

@@ -1,24 +1,33 @@
 import { LockKeyhole, UserRound } from 'lucide-react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AuthField from '../../components/forms/AuthField.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import AuthLayout from '../../layouts/AuthLayout.jsx';
+import { getApiError } from '../../utils/apiError.js';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: 'onTouched' });
 
-  const onSubmit = (data) => {
-    toast.success('Login successful!');
-    if (data.email && data.email.toLowerCase().includes('employee')) {
-      navigate('/employee/dashboard');
-    } else {
-      navigate('/admin/dashboard');
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const user = await login(data.email, data.password);
+      toast.success('Login successful!');
+      navigate(user.role === 'ADMIN' ? '/admin/dashboard' : '/employee/dashboard', { replace: true });
+    } catch (error) {
+      toast.error(getApiError(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const onInvalid = () => toast.error('Please correct the highlighted fields.');
@@ -53,10 +62,11 @@ const Login = () => {
           })}
         />
         <button
-          className="mt-12 w-full rounded-full bg-[#1d2029] px-5 py-[1.08rem] text-[1.35rem] font-bold text-white shadow-[0_13px_20px_rgba(15,18,27,0.38)] transition hover:bg-[#161922] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-[#3d4351]"
+          className="mt-12 w-full rounded-full bg-[#1d2029] px-5 py-[1.08rem] text-[1.35rem] font-bold text-white shadow-[0_13px_20px_rgba(15,18,27,0.38)] transition hover:bg-[#161922] focus:outline-none focus:ring-2 focus:ring-white/70 focus:ring-offset-2 focus:ring-offset-[#3d4351] disabled:cursor-not-allowed disabled:opacity-70"
           type="submit"
+          disabled={isSubmitting}
         >
-          Log in
+          {isSubmitting ? 'Logging in...' : 'Log in'}
         </button>
       </form>
       <p className="mt-5 text-center text-[13px] text-white">

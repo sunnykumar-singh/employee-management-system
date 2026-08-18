@@ -1,180 +1,165 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
+import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
+import LoadingState from '../../components/common/LoadingState.jsx';
 import DepartmentFilters from '../../components/departments/DepartmentFilters.jsx';
 import DepartmentForm from '../../components/departments/DepartmentForm.jsx';
 import DepartmentHeader from '../../components/departments/DepartmentHeader.jsx';
 import DepartmentStats from '../../components/departments/DepartmentStats.jsx';
 import DepartmentTable from '../../components/departments/DepartmentTable.jsx';
-import { departments } from '../../data/departmentsData.js';
-import ViewDepartmentModal from "../../components/departments/ViewDepartmentModal";
-import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
-
-const departmentStyles = [
-  { icon: 'building', color: '#5a4ff2', background: '#ecebff', avatar: '#6659f5' },
-  { icon: 'users', color: '#0ab16b', background: '#e5f8ee', avatar: '#159b61' },
-  { icon: 'chart', color: '#2585f3', background: '#e7f2ff', avatar: '#2b77d8' },
-];
+import ViewDepartmentModal from '../../components/departments/ViewDepartmentModal';
+import useDebouncedValue from '../../hooks/useDebouncedValue.js';
+import { createDepartment, deleteDepartment, listDepartments, updateDepartment, uploadDepartmentPhoto } from '../../services/departmentService.js';
+import { getApiError } from '../../utils/apiError.js';
+import { getSelectedFile, mapDepartment, toDepartmentPayload } from '../../utils/mappers.js';
 
 const Departments = () => {
-  const [departmentList, setDepartmentList] = useState(departments);
+  const [departmentList, setDepartmentList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({ head: 'All Department Heads', status: 'All Statuses' });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState(null);
-  const [deleteDepartment, setDeleteDepartment] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [formMode, setFormMode] = useState("add");
-  const nextDepartmentNumber = departmentList.reduce((largestId, department) => Math.max(largestId, department.id), 0) + 1;
-  const departmentId = `DEP${String(nextDepartmentNumber).padStart(3, '0')}`;
-  const filteredDepartments = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+  const [formMode, setFormMode] = useState('add');
+  const [loading, setLoading] = useState(true);
+  const [allDepartments, setAllDepartments] = useState([]);
+  const debouncedSearch = useDebouncedValue(searchQuery);
+  const departmentId = `DEP${String((totalItems || departmentList.length) + 1).padStart(3, '0')}`;
 
-    return departmentList.filter((department) => [
-      department.departmentId,
-      department.name,
-      department.head,
-      department.description,
-    ].some((field) => String(field ?? '').toLowerCase().includes(query))
-      && (filters.head === 'All Department Heads' || department.head === filters.head)
-      && (filters.status === 'All Statuses' || department.status === filters.status));
-  }, [departmentList, filters, searchQuery]);
-  const departmentHeadOptions = useMemo(() => ['All Department Heads', ...new Set(departmentList.map((department) => department.head))], [departmentList]);
-  const totalPages = Math.max(Math.ceil(filteredDepartments.length / pageSize), 1);
-  const activePage = Math.min(currentPage, totalPages);
-  const paginatedDepartments = useMemo(() => {
-    const startIndex = (activePage - 1) * pageSize;
-    return filteredDepartments.slice(startIndex, startIndex + pageSize);
-  }, [activePage, filteredDepartments, pageSize]);
+  const loadDepartments = useCallback(async () => {
+    setLoading(true);
+    try {
+      const status = filters.status === 'All Statuses' ? undefined : filters.status.toUpperCase();
+      const page = await listDepartments({
+        page: currentPage - 1,
+        size: pageSize,
+        search: debouncedSearch || undefined,
+        status,
+      });
+      const mapped = (page.content || []).map((department, index) => mapDepartment(department, index));
+      const visible = filters.head === 'All Department Heads'
+        ? mapped
+        : mapped.filter((department) => department.head === filters.head);
+      setDepartmentList(visible);
+      setTotalItems(page.totalElements || 0);
+    } catch (error) {
+      toast.error(getApiError(error));
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, debouncedSearch, filters.head, filters.status, pageSize]);
 
-  const updateFilter = (filterName, value) => {
-    setFilters((currentFilters) => ({ ...currentFilters, [filterName]: value }));
-    setCurrentPage(1);
-  };
-  const updateSearchQuery = (value) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
-  };
-  const updatePageSize = (value) => {
-    setPageSize(value);
-    setCurrentPage(1);
+  const loadAllForStats = useCallback(async () => {
+    try {
+      const page = await listDepartments({ page: 0, size: 100 });
+      setAllDepartments((page.content || []).map(mapDepartment));
+    } catch {
+      setAllDepartments([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDepartments();
+  }, [loadDepartments]);
+
+  useEffect(() => {
+    loadAllForStats();
+  }, [loadAllForStats]);
+
+  const departmentHeadOptions = useMemo(
+    () => ['All Department Heads', ...new Set(allDepartments.map((department) => department.head).filter(Boolean))],
+    [allDepartments],
+  );
+
+  const saveDepartment = async (values) => {
+    try {
+      const payload = toDepartmentPayload(values);
+      const photoFile = getSelectedFile(values.headPhoto);
+      let saved;
+      if (formMode === 'edit') {
+        saved = await updateDepartment(editingDepartment.id, payload);
+        toast.success('Department updated successfully.');
+      } else {
+        saved = await createDepartment(payload);
+        toast.success('Department added successfully.');
+      }
+      if (photoFile && saved?.id) {
+        await uploadDepartmentPhoto(saved.id, photoFile);
+        toast.success('Department head photo uploaded successfully.');
+      }
+      setIsFormOpen(false);
+      setEditingDepartment(null);
+      setFormMode('add');
+      await Promise.all([loadDepartments(), loadAllForStats()]);
+    } catch (error) {
+      toast.error(getApiError(error));
+    }
   };
 
-  const addDepartment = (values) => {
-    const style = departmentStyles[(nextDepartmentNumber - 1) % departmentStyles.length];
-    setDepartmentList((currentDepartments) => [...currentDepartments, {
-      id: nextDepartmentNumber,
-      departmentId: values.departmentId.trim(),
-      name: values.departmentName.trim(),
-      head: values.departmentHead,
-      description: values.description.trim(),
-      status: values.status,
-      employees: 0,
-      headPhoto: values.headPhoto?.[0] ? URL.createObjectURL(values.headPhoto[0]) : null,
-      ...style,
-    }]);
-    setCurrentPage(Math.ceil((departmentList.length + 1) / pageSize));
-    setIsFormOpen(false);
-    toast.success('Department added successfully.');
-  };
-
-const updateDepartment = (values) => {
-  setDepartmentList((currentDepartments) =>
-    currentDepartments.map((dept) =>
-      dept.id === editingDepartment.id
-        ? {
-            ...dept,
-            departmentId: values.departmentId.trim(),
-            name: values.departmentName.trim(),
-            head: values.departmentHead.trim(),
-            description: values.description.trim(),
-            status: values.status,
-            headPhoto: values.headPhoto?.[0]
-              ? URL.createObjectURL(values.headPhoto[0])
-              : dept.headPhoto,
+  return (
+    <div className="mx-auto max-w-[1280px] space-y-5">
+      <DepartmentHeader onAddDepartment={() => { setFormMode('add'); setEditingDepartment(null); setIsFormOpen(true); }} />
+      <DepartmentStats departments={allDepartments} />
+      <div>
+        <DepartmentFilters
+          filters={filters}
+          headOptions={departmentHeadOptions}
+          onFilterChange={(name, value) => { setFilters((current) => ({ ...current, [name]: value })); setCurrentPage(1); }}
+          searchQuery={searchQuery}
+          onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }}
+          onRefresh={loadDepartments}
+        />
+        {loading ? <LoadingState label="Loading departments..." /> : (
+          <DepartmentTable
+            departments={departmentList}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(value) => { setPageSize(value); setCurrentPage(1); }}
+            onView={(department) => { setSelectedDepartment(department); setIsViewOpen(true); }}
+            onEdit={(department) => { setEditingDepartment(department); setFormMode('edit'); setIsFormOpen(true); }}
+            onDelete={(department) => { setDeleteTarget(department); setIsDeleteOpen(true); }}
+          />
+        )}
+      </div>
+      <DepartmentForm
+        department={editingDepartment}
+        departmentId={departmentId}
+        departments={allDepartments}
+        isOpen={isFormOpen}
+        mode={formMode}
+        onClose={() => { setIsFormOpen(false); setEditingDepartment(null); setFormMode('add'); }}
+        onSubmit={saveDepartment}
+      />
+      <ViewDepartmentModal isOpen={isViewOpen} department={selectedDepartment} onClose={() => setIsViewOpen(false)} />
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        title="Delete Department"
+        itemName={deleteTarget?.name}
+        itemId={deleteTarget?.departmentId}
+        onClose={() => { setDeleteTarget(null); setIsDeleteOpen(false); }}
+        onConfirm={async () => {
+          try {
+            await deleteDepartment(deleteTarget.id);
+            toast.success('Department deleted successfully.');
+            setDeleteTarget(null);
+            setIsDeleteOpen(false);
+            await Promise.all([loadDepartments(), loadAllForStats()]);
+          } catch (error) {
+            toast.error(getApiError(error));
           }
-        : dept
-    )
-  );
-
-  setIsFormOpen(false);
-  setEditingDepartment(null);
-  setFormMode("add");
-
-  toast.success("Department updated successfully.");
-};
-
-const confirmDeleteDepartment = () => {
-  setDepartmentList((currentDepartments) =>
-    currentDepartments.filter(
-      (department) => department.id !== deleteDepartment.id
-    )
-  );
-
-  setDeleteDepartment(null);
-  setIsDeleteOpen(false);
-
-  toast.success("Department deleted successfully.");
-};
-  
-  const handleViewDepartment = (department) => {
-  setSelectedDepartment(department);
-  setIsViewOpen(true);
-};
-
-const handleEditDepartment = (department) => {
-  setEditingDepartment(department);
-  setFormMode("edit");
-  setIsFormOpen(true);
-};
-
-const handleDeleteDepartment = (department) => {
-  setDeleteDepartment(department);
-  setIsDeleteOpen(true);
-};
-
-  return <div className="mx-auto max-w-[1280px] space-y-5">
-    <DepartmentHeader onAddDepartment={() => { setFormMode("add"); setEditingDepartment(null); setIsFormOpen(true); }} />
-    <DepartmentStats departments={departmentList} />
-    <div>
-      <DepartmentFilters filters={filters} headOptions={departmentHeadOptions} onFilterChange={updateFilter} searchQuery={searchQuery} onSearchChange={updateSearchQuery} />
-     <DepartmentTable departments={paginatedDepartments} currentPage={activePage} pageSize={pageSize} totalItems={filteredDepartments.length} onPageChange={setCurrentPage} onPageSizeChange={updatePageSize} onView={handleViewDepartment} onEdit={handleEditDepartment} onDelete={handleDeleteDepartment} />
+        }}
+      />
+      <ToastContainer position="top-right" theme="light" />
     </div>
-    <DepartmentForm
-  department={editingDepartment}
-  departmentId={departmentId}
-  departments={departmentList}
-  isOpen={isFormOpen}
-  mode={formMode}
-  onClose={() => {
-    setIsFormOpen(false);
-    setEditingDepartment(null);
-    setFormMode("add");}} 
-    onSubmit={formMode === "edit" ? updateDepartment : addDepartment} 
-    />
-
-      <ViewDepartmentModal
-    isOpen={isViewOpen}
-    department={selectedDepartment}
-    onClose={() => setIsViewOpen(false)}/>
-    
-    <DeleteConfirmationModal
-  isOpen={isDeleteOpen}
-  title="Delete Department"
-  itemName={deleteDepartment?.name}
-  itemId={deleteDepartment?.departmentId}
-  onClose={() => {
-    setDeleteDepartment(null);
-    setIsDeleteOpen(false);
-  }}
-  onConfirm={confirmDeleteDepartment}
-/>
-
-    <ToastContainer position="top-right" theme="light" />
-  </div>;
+  );
 };
 
 export default Departments;
