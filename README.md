@@ -59,6 +59,8 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 
 ## 📂 PROJECT STRUCTURE
 
+```text
+=======
 Employee-Management-System/
 │
 ├── backend/
@@ -85,6 +87,7 @@ Employee-Management-System/
 │
 ├── README.md
 └── .gitignore
+```
 
 ---
 
