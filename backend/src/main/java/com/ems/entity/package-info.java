@@ -1,4 +1,4 @@
 /**
- * JPA entities will be added here.
+ * JPA entities for the Employee Management System.
  */
 package com.ems.entity;

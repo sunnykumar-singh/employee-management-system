@@ -60,11 +60,40 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 ## 📂 Project Structure
 
 ```text
+<<<<<<< HEAD
 Employee-Management-System
 │
 ├── frontend/
 ├── backend/
 └── README.md
+=======
+Employee-Management-System/
+│
+├── backend/
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.js
+│   ├── eslint.config.js
+│   └── index.html
+│
+├── assets/
+│   ├── banner.png
+│   ├── login.png
+│   ├── admin-dashboard.png
+│   ├── employee-dashboard.png
+│   ├── employees.png
+│   ├── departments.png
+│   ├── attendance.png
+│   ├── leaves.png
+│   └── announcements.png
+│
+├── README.md
+└── .gitignore
+>>>>>>> 5b287a4 (docs: update README and reorganize project structure)
 ```
 
 ---
@@ -105,6 +134,7 @@ npm run dev
 
 ## 📸 Preview
 
+<<<<<<< HEAD
 > Add screenshots here
 
 - Login
@@ -114,6 +144,17 @@ npm run dev
 - Leave
 - Departments
 - Announcements
+=======
+![Banner](assets/banner.png)
+![Login](assets/login.png)
+![Admin Dashboard](assets/admin-dashboard.png)
+![Employee Dashboard](assets/employee-dashboard.png)
+![Employees](assets/employees.png)
+![Departments](assets/departments.png)
+![Attendance](assets/attendance.png)
+![Leaves](assets/leaves.png)
+![Announcements](assets/announcements.png)
+>>>>>>> 5b287a4 (docs: update README and reorganize project structure)
 
 ---
 

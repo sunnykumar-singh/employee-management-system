@@ -1,4 +1,4 @@
 /**
- * Spring Data JPA repositories will be added here.
+ * Spring Data JPA repositories for the Employee Management System.
  */
 package com.ems.repository;

@@ -1,4 +1,4 @@
 /**
- * Application services will be added here.
+ * Application services for the Employee Management System.
  */
 package com.ems.service;
