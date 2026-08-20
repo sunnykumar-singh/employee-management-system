@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Employee Management System
+# Employee Management System
 
 A modern **Full Stack Employee Management System** built with **React, Spring Boot, Spring Security, JWT & MySQL** featuring secure authentication, role-based access, attendance, leave, departments, announcements, and employee management.
 
@@ -16,7 +16,7 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 
 ## ✨ Features
 
-### 👨‍💼 Admin
+### 👨‍💼 ADMIN
 - Dashboard & Analytics
 - Employee Management
 - Department Management
@@ -25,7 +25,7 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 - Announcements
 - Role-Based Access
 
-### 👨‍💻 Employee
+### 👨‍💻 EMPLOYEE
 - Dashboard
 - Check-In / Check-Out
 - Attendance History
@@ -36,7 +36,7 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 TECH STACK
 
 | Frontend | Backend | Database |
 |----------|---------|----------|
@@ -47,7 +47,7 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 
 ---
 
-## 🔐 Authentication
+## 🔐 AUTHENTICATION
 
 - JWT Authentication
 - Spring Security
@@ -57,16 +57,8 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 
 ---
 
-## 📂 Project Structure
+## 📂 PROJECT STRUCTURE
 
-```text
-<<<<<<< HEAD
-Employee-Management-System
-│
-├── frontend/
-├── backend/
-└── README.md
-=======
 Employee-Management-System/
 │
 ├── backend/
@@ -93,8 +85,6 @@ Employee-Management-System/
 │
 ├── README.md
 └── .gitignore
->>>>>>> 5b287a4 (docs: update README and reorganize project structure)
-```
 
 ---
 
