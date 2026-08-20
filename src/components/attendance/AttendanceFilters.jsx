@@ -2,6 +2,62 @@ import { CalendarDays, FileDown, Filter, FileSpreadsheet } from 'lucide-react';
 import { ATTENDANCE_STATUSES, DESIGNATIONS } from '../../utils/mappers.js';
 import FilterDropdown from '../employees/FilterDropdown.jsx';
 
-const AttendanceFilters = ({ filters, departments = [], onFilterChange, onApplyFilters, onExportExcel, onExportPdf }) => <section className="flex flex-wrap items-center gap-3 rounded-xl border border-[#e4eaf2] bg-white px-4 py-4 shadow-[0_2px_8px_rgba(16,24,40,0.02)]"><label className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#344767]" size={14} /><input className="rounded-md border border-[#dfe6f0] bg-white py-2 pl-9 pr-3 text-[11px] font-medium text-[#101828] outline-none focus:border-[#6659f5]" type="date" value={filters.date} onChange={(event) => onFilterChange('date', event.target.value)} aria-label="Attendance date" /></label><FilterDropdown label="Department" options={['Department', ...departments.map((department) => department.name)]} value={filters.department} onChange={(value) => onFilterChange('department', value)} /><FilterDropdown label="Designation" options={['Designation', ...DESIGNATIONS]} value={filters.designation} onChange={(value) => onFilterChange('designation', value)} /><FilterDropdown label="Status" options={['All Status', ...ATTENDANCE_STATUSES]} value={filters.status} onChange={(value) => onFilterChange('status', value)} /><button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button" onClick={onApplyFilters}><Filter size={14} />Filter</button><div className="ml-auto flex flex-wrap gap-3"><button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button" onClick={onExportExcel}><FileSpreadsheet size={15} className="text-[#0eaa64]" />Export Excel</button><button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button" onClick={onExportPdf}><FileDown size={15} className="text-[#f04438]" />Export PDF</button></div></section>;
+const AttendanceFilters = ({
+  filters,
+  departments = [],
+  onFilterChange,
+  onApplyFilters,
+  onExportExcel,
+  onExportPdf,
+  variant = 'admin',
+}) => (
+  <section className="flex flex-wrap items-center gap-3 rounded-xl border border-[#e4eaf2] bg-white px-4 py-4 shadow-[0_2px_8px_rgba(16,24,40,0.02)]">
+    <label className="relative">
+      <CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#344767]" size={14} />
+      <input
+        className="rounded-md border border-[#dfe6f0] bg-white py-2 pl-9 pr-3 text-[11px] font-medium text-[#101828] outline-none focus:border-[#6659f5]"
+        type="date"
+        value={filters.date}
+        onChange={(event) => onFilterChange('date', event.target.value)}
+        aria-label="Attendance date"
+      />
+    </label>
+    {variant === 'admin' && (
+      <>
+        <FilterDropdown
+          label="Department"
+          options={['Department', ...departments.map((department) => department.name)]}
+          value={filters.department}
+          onChange={(value) => onFilterChange('department', value)}
+        />
+        <FilterDropdown
+          label="Designation"
+          options={['Designation', ...DESIGNATIONS]}
+          value={filters.designation}
+          onChange={(value) => onFilterChange('designation', value)}
+        />
+      </>
+    )}
+    <FilterDropdown
+      label="Status"
+      options={['All Status', ...ATTENDANCE_STATUSES]}
+      value={filters.status}
+      onChange={(value) => onFilterChange('status', value)}
+    />
+    <button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button" onClick={onApplyFilters}>
+      <Filter size={14} />Filter
+    </button>
+    {variant === 'admin' && (
+      <div className="ml-auto flex flex-wrap gap-3">
+        <button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button" onClick={onExportExcel}>
+          <FileSpreadsheet size={15} className="text-[#0eaa64]" />Export Excel
+        </button>
+        <button className="flex items-center gap-2 rounded-md border border-[#dfe6f0] px-4 py-2 text-[11px] font-medium text-[#101828]" type="button" onClick={onExportPdf}>
+          <FileDown size={15} className="text-[#f04438]" />Export PDF
+        </button>
+      </div>
+    )}
+  </section>
+);
 
 export default AttendanceFilters;

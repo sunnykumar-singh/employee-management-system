@@ -1,7 +1,7 @@
     import LeaveActions from "./LeaveActions";
     import StatusBadge from "./StatusBadge";
 
-    const LeaveRow = ({ leave, serialNumber, onView, onEdit, onDelete, onApprove, onReject}) => {
+    const LeaveRow = ({ leave, serialNumber, onView, onEdit, onDelete, onApprove, onReject, readOnly = false }) => {
     return (
         <tr className="border-t border-[#edf2f7] text-[11px] hover:bg-[#f8fafc] transition">
         <td className="px-5 py-4 font-medium text-[#344767]">
@@ -49,7 +49,7 @@
         </td>
 
         <td className="px-5 py-4">
-            <LeaveActions leave={leave} onView={onView} onEdit={onEdit} onDelete={onDelete} onApprove={onApprove} onReject={onReject} />
+            <LeaveActions leave={leave} onView={onView} onEdit={onEdit} onDelete={onDelete} onApprove={onApprove} onReject={onReject} readOnly={readOnly} />
         </td>
         </tr>
     );

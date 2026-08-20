@@ -12,8 +12,8 @@ const SecuritySettings = ({ isOpen, onSave }) => {
 
   if (!isOpen) return null;
 
-  const submitForm = (values) => {
-    onSave(values);
+  const submitForm = async (values) => {
+    await onSave(values);
     reset({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
 

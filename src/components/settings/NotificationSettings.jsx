@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import Toggle from './Toggle';
 
 const NotificationSettings = ({ settings, isOpen, onSave }) => {
-  const { handleSubmit, reset, setValue, getValues, formState: { isSubmitting } } = useForm({ defaultValues: { emailNotifications: false, leaveNotifications: false, announcementNotifications: false } });
+  const { handleSubmit, reset, setValue, watch, formState: { isSubmitting } } = useForm({ defaultValues: { emailNotifications: false, leaveNotifications: false, announcementNotifications: false } });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -32,7 +32,7 @@ const NotificationSettings = ({ settings, isOpen, onSave }) => {
                 <p className="mt-0.5 text-xs text-[#667085]">{toggle.description}</p>
               </div>
               <Toggle
-                checked={getValues(toggle.name)}
+                checked={watch(toggle.name)}
                 label={toggle.label}
                 onChange={(value) => setValue(toggle.name, value)}
               />

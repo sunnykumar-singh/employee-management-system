@@ -8,48 +8,38 @@ import com.ems.dto.UserResponse;
 import com.ems.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
-public class UserController {
+@PreAuthorize("hasRole('EMPLOYEE')")
+public class EmployeeProfileController {
 
     private final AuthService authService;
 
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> me(Authentication authentication) {
+    @GetMapping
+    public ResponseEntity<ApiResponse<UserResponse>> get(Authentication authentication) {
         return ResponseEntity.ok(ApiResponse.success("Profile fetched successfully", authService.getCurrentUser(authentication)));
     }
 
-    @PutMapping("/me")
-    public ResponseEntity<ApiResponse<LoginResponse>> updateProfile(
+    @PutMapping
+    public ResponseEntity<ApiResponse<LoginResponse>> update(
             Authentication authentication, @Valid @RequestBody ProfileUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(
-                "Profile updated successfully", authService.updateProfile(authentication, request)));
+        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", authService.updateProfile(authentication, request)));
     }
 
-    @PutMapping("/me/password")
+    @PutMapping("/password")
     public ResponseEntity<ApiResponse<Void>> changePassword(
             Authentication authentication, @Valid @RequestBody ChangePasswordRequest request) {
         authService.changePassword(authentication, request);
         return ResponseEntity.ok(ApiResponse.success("Password updated successfully", null));
-    }
-
-    @PostMapping(value = "/me/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<UserResponse>> uploadPhoto(
-            Authentication authentication, @RequestParam("file") MultipartFile file) {
-        return ResponseEntity.ok(ApiResponse.success(
-                "Profile photo uploaded successfully", authService.updateProfilePhoto(authentication, file)));
     }
 }

@@ -3,7 +3,7 @@ import Pagination from "../common/Pagination";
 import EmptyState from "../employees/EmptyState";
 
 
-const LeaveTable = ({ leaves, currentPage, pageSize, totalItems, onPageChange, onPageSizeChange, onView, onEdit, onDelete, onApprove, onReject }) => {
+const LeaveTable = ({ leaves, currentPage, pageSize, totalItems, onPageChange, onPageSizeChange, onView, onEdit, onDelete, onApprove, onReject, readOnly = false }) => {
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-[#e7edf5] bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -37,6 +37,7 @@ const LeaveTable = ({ leaves, currentPage, pageSize, totalItems, onPageChange, o
                   onDelete={onDelete}
                   onApprove={onApprove}
                   onReject={onReject}
+                  readOnly={readOnly}
                 />
               ))}
             </tbody>

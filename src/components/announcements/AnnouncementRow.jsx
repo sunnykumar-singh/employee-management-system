@@ -1,7 +1,7 @@
 import AnnouncementActions from "./AnnouncementActions";
 import StatusBadge from "./StatusBadge";
 
-const AnnouncementRow = ({ announcement, serialNumber, onView, onEdit, onDelete }) => {
+const AnnouncementRow = ({ announcement, serialNumber, onView, onEdit, onDelete, readOnly = false }) => {
   return (
     <tr className="border-t border-[#edf2f7] text-[11px] hover:bg-[#f8fafc] transition">
       <td className="px-5 py-4 font-medium text-[#344767]">
@@ -29,7 +29,7 @@ const AnnouncementRow = ({ announcement, serialNumber, onView, onEdit, onDelete 
       </td>
 
       <td className="px-5 py-4">
-        <AnnouncementActions announcement={announcement} onView={onView} onEdit={onEdit} onDelete={onDelete} />
+        <AnnouncementActions announcement={announcement} onView={onView} onEdit={onEdit} onDelete={onDelete} readOnly={readOnly} />
       </td>
     </tr>
   );

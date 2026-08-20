@@ -9,11 +9,11 @@ import OrganizationTab from '../../components/profile/OrganizationTab';
 import SecurityTab from '../../components/profile/SecurityTab';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { adminProfileData } from '../../data/profileData';
-import { uploadProfilePhoto } from '../../services/authService.js';
+import { updateProfile, uploadProfilePhoto } from '../../services/authService.js';
 import { getApiError } from '../../utils/apiError.js';
 
 const Profile = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateSession, updateUser } = useAuth();
   const [profile, setProfile] = useState({
     ...adminProfileData,
     id: user?.id || adminProfileData.id,
@@ -22,26 +22,52 @@ const Profile = () => {
     role: user?.role === 'ADMIN' ? 'Super Admin' : user?.role || adminProfileData.role,
     initials: (user?.fullName || 'AU').split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(),
     profilePhoto: user?.profilePhoto || null,
+    phone: user?.phone || adminProfileData.phone,
+    gender: user?.gender || adminProfileData.gender,
+    dateOfBirth: user?.dateOfBirth || adminProfileData.dateOfBirth,
+    address: user?.address || adminProfileData.address,
+    emergencyContact: {
+      name: user?.emergencyName || adminProfileData.emergencyContact?.name || '',
+      relation: user?.emergencyRelation || adminProfileData.emergencyContact?.relation || '',
+      phone: user?.emergencyPhone || adminProfileData.emergencyContact?.phone || '',
+    },
   });
   const [activeTab, setActiveTab] = useState('personal');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const handleSavePersonalInfo = (updatedData) => {
+  const handleSavePersonalInfo = async (updatedData) => {
+    try {
+      const session = await updateProfile({
+        fullName: updatedData.name,
+        email: updatedData.email,
+        phone: updatedData.phone,
+        gender: updatedData.gender,
+        dateOfBirth: updatedData.dateOfBirth || null,
+        address: updatedData.address,
+        emergencyName: updatedData.emergencyName,
+        emergencyRelation: updatedData.emergencyRelation,
+        emergencyPhone: updatedData.emergencyPhone,
+      });
+      updateSession(session);
     setProfile((prev) => ({
       ...prev,
-      name: updatedData.name,
-      email: updatedData.email,
-      phone: updatedData.phone,
-      gender: updatedData.gender,
-      dateOfBirth: updatedData.dateOfBirth,
-      address: updatedData.address,
+      name: session.user.fullName,
+      initials: session.user.fullName.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(),
+      email: session.user.email,
+      phone: session.user.phone,
+      gender: session.user.gender,
+      dateOfBirth: session.user.dateOfBirth || '',
+      address: session.user.address,
       emergencyContact: {
-        name: updatedData.emergencyName,
-        relation: updatedData.emergencyRelation,
-        phone: updatedData.emergencyPhone,
+        name: session.user.emergencyName,
+        relation: session.user.emergencyRelation,
+        phone: session.user.emergencyPhone,
       },
     }));
     toast.success('Personal profile updated successfully!');
+    } catch (error) {
+      toast.error(getApiError(error));
+    }
   };
 
   const handlePasswordChange = () => {

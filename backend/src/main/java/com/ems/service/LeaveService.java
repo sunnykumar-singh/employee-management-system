@@ -38,6 +38,11 @@ public class LeaveService {
     @Transactional
     public LeaveResponse create(LeaveRequest request) {
         Employee employee = findActiveEmployee(request.getEmployeeId());
+        return createForEmployee(employee, request);
+    }
+
+    @Transactional
+    public LeaveResponse createForEmployee(Employee employee, LeaveRequest request) {
         int days = calculateDays(request.getFromDate(), request.getToDate());
         validateNoOverlap(employee.getId(), request.getFromDate(), request.getToDate(), null);
         validateLeaveBalance(employee, request.getLeaveType(), days, null);
@@ -54,6 +59,16 @@ public class LeaveService {
                 .build();
 
         return toResponse(leaveRepository.save(leave));
+    }
+
+    @Transactional
+    public void cancelForEmployee(Long leaveId, Long employeeId) {
+        Leave leave = findLeave(leaveId);
+        if (!leave.getEmployee().getId().equals(employeeId)) {
+            throw new ResourceNotFoundException("Leave request not found");
+        }
+        ensurePending(leave, "Only pending leave requests can be cancelled");
+        leaveRepository.delete(leave);
     }
 
     @Transactional(readOnly = true)

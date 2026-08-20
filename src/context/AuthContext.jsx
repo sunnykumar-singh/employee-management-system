@@ -22,6 +22,13 @@ export const AuthProvider = ({ children }) => {
     setUser(nextUser);
   };
 
+  const updateSession = (session) => {
+    storage.setToken(session.token);
+    storage.setUser(session.user);
+    setToken(session.token);
+    setUser(session.user);
+  };
+
   const logout = () => {
     storage.clear();
     setToken(null);
@@ -36,6 +43,7 @@ export const AuthProvider = ({ children }) => {
       login,
       logout,
       updateUser,
+      updateSession,
     }),
     [token, user],
   );

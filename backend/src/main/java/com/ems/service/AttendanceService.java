@@ -89,6 +89,59 @@ public class AttendanceService {
         attendanceRepository.delete(attendance);
     }
 
+    @Transactional
+    public AttendanceResponse checkIn(Employee employee) {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now().withNano(0);
+
+        Attendance attendance = attendanceRepository
+                .findByEmployeeIdAndDate(employee.getId(), today)
+                .orElse(null);
+
+        if (attendance != null && attendance.getCheckIn() != null) {
+            throw new ConflictException("You have already checked in today");
+        }
+
+        if (attendance == null) {
+            attendance = Attendance.builder()
+                    .employee(employee)
+                    .date(today)
+                    .build();
+        }
+
+        attendance.setCheckIn(now);
+        attendance.setCheckOut(null);
+        attendance.setStatus(now.isAfter(LocalTime.of(9, 0)) ? AttendanceStatus.LATE : AttendanceStatus.PRESENT);
+        attendance.setWorkingHours(ZERO_HOURS);
+
+        return AttendanceResponse.from(attendanceRepository.save(attendance));
+    }
+
+    @Transactional
+    public AttendanceResponse checkOut(Employee employee) {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now().withNano(0);
+
+        Attendance attendance = attendanceRepository
+                .findByEmployeeIdAndDate(employee.getId(), today)
+                .orElseThrow(() -> new BadRequestException("Check-in is required before check-out"));
+
+        if (attendance.getCheckIn() == null) {
+            throw new BadRequestException("Check-in is required before check-out");
+        }
+        if (attendance.getCheckOut() != null) {
+            throw new ConflictException("You have already checked out today");
+        }
+        if (now.isBefore(attendance.getCheckIn())) {
+            throw new BadRequestException("Check-out must be after check-in");
+        }
+
+        attendance.setCheckOut(now);
+        attendance.setWorkingHours(formatWorkingHours(attendance.getCheckIn(), now));
+
+        return AttendanceResponse.from(attendanceRepository.save(attendance));
+    }
+
     private void applyTimes(Attendance attendance, AttendanceRequest request) {
         LocalTime checkIn = request.getCheckIn();
         LocalTime checkOut = request.getCheckOut();

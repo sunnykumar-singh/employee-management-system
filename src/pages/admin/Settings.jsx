@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -6,23 +6,57 @@ import GeneralSettings from '../../components/settings/GeneralSettings';
 import NotificationSettings from '../../components/settings/NotificationSettings';
 import SecuritySettings from '../../components/settings/SecuritySettings';
 import { generalSettings as generalSettingsData, notificationSettings as notificationSettingsData } from '../../data/settingsData';
+import { changePassword } from '../../services/authService.js';
+import { getSettings, updateSettings } from '../../services/settingsService.js';
+import { getApiError } from '../../utils/apiError.js';
 
 const Settings = () => {
   const [general, setGeneral] = useState(generalSettingsData);
   const [notifications, setNotifications] = useState(notificationSettingsData);
+  const [loading, setLoading] = useState(true);
 
-  const saveGeneralSettings = (values) => {
-    setGeneral({ companyName: values.companyName.trim(), companyEmail: values.companyEmail.trim(), companyPhone: values.companyPhone.trim(), companyAddress: values.companyAddress.trim() });
-    toast.success('General settings saved successfully.');
+  useEffect(() => {
+    getSettings()
+      .then((settings) => {
+        setGeneral({ companyName: settings.companyName, companyEmail: settings.companyEmail, companyPhone: settings.companyPhone, companyAddress: settings.companyAddress });
+        setNotifications({ emailNotifications: settings.emailNotifications, leaveNotifications: settings.leaveNotifications, announcementNotifications: settings.announcementNotifications });
+      })
+      .catch((error) => toast.error(getApiError(error)))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const saveGeneralSettings = async (values) => {
+    try {
+      const settings = await updateSettings({ ...general, ...notifications, companyName: values.companyName.trim(), companyEmail: values.companyEmail.trim(), companyPhone: values.companyPhone.trim(), companyAddress: values.companyAddress.trim() });
+      setGeneral({ companyName: settings.companyName, companyEmail: settings.companyEmail, companyPhone: settings.companyPhone, companyAddress: settings.companyAddress });
+      setNotifications({ emailNotifications: settings.emailNotifications, leaveNotifications: settings.leaveNotifications, announcementNotifications: settings.announcementNotifications });
+      toast.success('General settings saved successfully.');
+    } catch (error) {
+      toast.error(getApiError(error));
+      throw error;
+    }
   };
 
-  const saveNotificationSettings = (values) => {
-    setNotifications({ emailNotifications: values.emailNotifications, leaveNotifications: values.leaveNotifications, announcementNotifications: values.announcementNotifications });
-    toast.success('Notification settings saved successfully.');
+  const saveNotificationSettings = async (values) => {
+    try {
+      const settings = await updateSettings({ ...general, ...notifications, ...values });
+      setGeneral({ companyName: settings.companyName, companyEmail: settings.companyEmail, companyPhone: settings.companyPhone, companyAddress: settings.companyAddress });
+      setNotifications({ emailNotifications: settings.emailNotifications, leaveNotifications: settings.leaveNotifications, announcementNotifications: settings.announcementNotifications });
+      toast.success('Notification settings saved successfully.');
+    } catch (error) {
+      toast.error(getApiError(error));
+      throw error;
+    }
   };
 
-  const updatePassword = () => {
-    toast.success('Password updated successfully.');
+  const updatePassword = async (values) => {
+    try {
+      await changePassword(values);
+      toast.success('Password updated successfully.');
+    } catch (error) {
+      toast.error(getApiError(error));
+      throw error;
+    }
   };
 
   return (
@@ -35,9 +69,9 @@ const Settings = () => {
       </header>
 
       <div className="grid gap-5 xl:grid-cols-2">
-        <GeneralSettings settings={general} isOpen onSave={saveGeneralSettings} />
-        <NotificationSettings settings={notifications} isOpen onSave={saveNotificationSettings} />
-        <SecuritySettings isOpen onSave={updatePassword} />
+        <GeneralSettings settings={general} isOpen={!loading} onSave={saveGeneralSettings} />
+        <NotificationSettings settings={notifications} isOpen={!loading} onSave={saveNotificationSettings} />
+        <SecuritySettings isOpen={!loading} onSave={updatePassword} />
       </div>
 
       <ToastContainer position="top-right" theme="light" />

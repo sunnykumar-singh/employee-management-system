@@ -13,6 +13,8 @@ import Announcements from '../pages/admin/Announcements.jsx';
 import Settings from '../pages/admin/Settings.jsx';
 import AdminProfile from '../pages/admin/Profile.jsx';
 import EmployeeDashboard from '../pages/employee/Dashboard.jsx';
+import EmployeeAttendance from '../pages/employee/Attendance.jsx';
+import EmployeeAnnouncements from '../pages/employee/Announcements.jsx';
 import EmployeeProfile from '../pages/employee/Profile.jsx';
 import MyLeaves from '../pages/employee/MyLeaves.jsx';
 import NotFound from '../pages/NotFound.jsx';
@@ -44,8 +46,10 @@ const AppRoutes = () => (
       <Route path="/employee" element={<EmployeeLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<EmployeeDashboard />} />
-        <Route path="profile" element={<EmployeeProfile />} />
+        <Route path="attendance" element={<EmployeeAttendance />} />
         <Route path="leaves" element={<MyLeaves />} />
+        <Route path="announcements" element={<EmployeeAnnouncements />} />
+        <Route path="profile" element={<EmployeeProfile />} />
       </Route>
     </Route>
 

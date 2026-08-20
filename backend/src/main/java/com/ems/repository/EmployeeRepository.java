@@ -15,6 +15,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     @EntityGraph(attributePaths = "department")
     Optional<Employee> findByIdAndActiveTrue(Long id);
 
+    @EntityGraph(attributePaths = "department")
+    Optional<Employee> findByEmailIgnoreCaseAndActiveTrue(String email);
+
     @Override
     @EntityGraph(attributePaths = "department")
     Page<Employee> findAll(Specification<Employee> spec, Pageable pageable);

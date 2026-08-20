@@ -57,5 +57,10 @@ public interface LeaveRepository extends JpaRepository<Leave, Long>, JpaSpecific
             @Param("statuses") Collection<LeaveStatus> statuses,
             @Param("excludeId") Long excludeId);
 
+    long countByEmployeeIdAndStatus(Long employeeId, LeaveStatus status);
+
+    Optional<Leave> findFirstByEmployeeIdAndStatusAndFromDateGreaterThanEqualOrderByFromDateAsc(
+            Long employeeId, LeaveStatus status, LocalDate fromDate);
+
     void deleteByEmployeeId(Long employeeId);
 }

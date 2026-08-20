@@ -11,6 +11,16 @@ export const getCurrentUser = async () => {
   return unwrapItem(data);
 };
 
+export const updateProfile = async (profile) => {
+  const { data } = await api.put('/users/me', profile);
+  return unwrapItem(data);
+};
+
+export const changePassword = async (passwords) => {
+  const { data } = await api.put('/users/me/password', passwords);
+  return unwrapItem(data);
+};
+
 export const uploadProfilePhoto = async (file) => {
   const formData = new FormData();
   formData.append('file', file);

@@ -12,6 +12,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,26 @@ public class User implements UserDetails {
 
     @Column(name = "profile_photo", length = 500)
     private String profilePhoto;
+
+    @Column(length = 40)
+    private String phone;
+
+    @Column(length = 30)
+    private String gender;
+
+    private LocalDate dateOfBirth;
+
+    @Column(length = 500)
+    private String address;
+
+    @Column(length = 120)
+    private String emergencyName;
+
+    @Column(length = 80)
+    private String emergencyRelation;
+
+    @Column(length = 40)
+    private String emergencyPhone;
 
     @Builder.Default
     @Column(nullable = false)

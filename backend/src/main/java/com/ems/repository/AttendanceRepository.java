@@ -1,6 +1,7 @@
 package com.ems.repository;
 
 import com.ems.entity.Attendance;
+import com.ems.entity.AttendanceStatus;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>, J
     boolean existsByEmployeeIdAndDate(Long employeeId, LocalDate date);
 
     boolean existsByEmployeeIdAndDateAndIdNot(Long employeeId, LocalDate date, Long id);
+
+    @EntityGraph(attributePaths = {"employee", "employee.department"})
+    Optional<Attendance> findByEmployeeIdAndDate(Long employeeId, LocalDate date);
+
+    long countByEmployeeIdAndStatus(Long employeeId, AttendanceStatus status);
 
     void deleteByEmployeeId(Long employeeId);
 }

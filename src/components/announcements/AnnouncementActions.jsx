@@ -1,6 +1,6 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 
-const AnnouncementActions = ({ announcement, onView, onEdit, onDelete }) => {
+const AnnouncementActions = ({ announcement, onView, onEdit, onDelete, readOnly = false }) => {
   return (
     <div className="flex items-center justify-center gap-2">
       <button
@@ -12,23 +12,27 @@ const AnnouncementActions = ({ announcement, onView, onEdit, onDelete }) => {
         <Eye size={14} />
       </button>
 
-      <button
-        type="button"
-        className="rounded-md border border-[#e4eaf2] p-2 transition hover:bg-slate-50"
-        title="Edit"
-        onClick={() => onEdit?.(announcement)}
-      >
-        <Pencil size={14} />
-      </button>
+      {!readOnly && (
+        <button
+          type="button"
+          className="rounded-md border border-[#e4eaf2] p-2 transition hover:bg-slate-50"
+          title="Edit"
+          onClick={() => onEdit?.(announcement)}
+        >
+          <Pencil size={14} />
+        </button>
+      )}
 
-      <button
-        type="button"
-        className="rounded-md border border-[#e4eaf2] p-2 text-red-500 transition hover:bg-red-50"
-        title="Delete"
-        onClick={() => onDelete?.(announcement)}
-      >
-        <Trash2 size={14} />
-      </button>
+      {!readOnly && (
+        <button
+          type="button"
+          className="rounded-md border border-[#e4eaf2] p-2 text-red-500 transition hover:bg-red-50"
+          title="Delete"
+          onClick={() => onDelete?.(announcement)}
+        >
+          <Trash2 size={14} />
+        </button>
+      )}
     </div>
   );
 };

@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import SidebarItem from './SidebarItem.jsx';
 
-const navigationItems = [
+const adminNavigationItems = [
   { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Employees', to: '/admin/employees', icon: Users },
   { label: 'Departments', to: '/admin/departments', icon: Building2 },
@@ -25,9 +25,18 @@ const navigationItems = [
   { label: 'Profile', to: '/admin/profile', icon: UserRound },
 ];
 
+const employeeNavigationItems = [
+  { label: 'Dashboard', to: '/employee/dashboard', icon: LayoutDashboard },
+  { label: 'My Attendance', to: '/employee/attendance', icon: ClipboardCheck },
+  { label: 'My Leave', to: '/employee/leaves', icon: CalendarDays },
+  { label: 'Announcements', to: '/employee/announcements', icon: Megaphone },
+  { label: 'Profile', to: '/employee/profile', icon: UserRound },
+];
+
 const Sidebar = ({ isOpen, onClose }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const navigationItems = user?.role === 'EMPLOYEE' ? employeeNavigationItems : adminNavigationItems;
 
   const handleItemClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
@@ -54,7 +63,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-[#03142d] px-3 py-5 shadow-2xl shadow-slate-950/30 transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        aria-label="Admin navigation"
+        aria-label={user?.role === 'EMPLOYEE' ? 'Employee navigation' : 'Admin navigation'}
       >
         <div className="flex items-center justify-between px-2 pb-5">
           <div className="flex items-center gap-3">
