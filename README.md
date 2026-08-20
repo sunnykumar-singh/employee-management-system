@@ -60,7 +60,6 @@ A modern **Full Stack Employee Management System** built with **React, Spring Bo
 ## 📂 PROJECT STRUCTURE
 
 ```text
-=======
 Employee-Management-System/
 │
 ├── backend/
@@ -127,18 +126,6 @@ npm run dev
 
 ## 📸 Preview
 
-<<<<<<< HEAD
-> Add screenshots here
-
-- Login
-- Admin Dashboard
-- Employee Dashboard
-- Attendance
-- Leave
-- Departments
-- Announcements
-=======
-![Banner](assets/banner.png)
 ![Login](assets/login.png)
 ![Admin Dashboard](assets/admin-dashboard.png)
 ![Employee Dashboard](assets/employee-dashboard.png)
@@ -147,23 +134,13 @@ npm run dev
 ![Attendance](assets/attendance.png)
 ![Leaves](assets/leaves.png)
 ![Announcements](assets/announcements.png)
->>>>>>> 5b287a4 (docs: update README and reorganize project structure)
 
 ---
 
-## 📌 Roadmap
-
-- Payroll Module
-- Email Notifications
-- Reports & Analytics
-- Docker Deployment
-- Cloud Deployment
-
----
 
 <div align="center">
 
-### 👨‍💻 Developer
+###  Developer
 
 **Sunny Kumar Singh**
 
@@ -171,6 +148,6 @@ npm run dev
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Sunny_Kumar_Singh-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sunnykumarsingh045/)
 [![Email](https://img.shields.io/badge/Email-Contact-D14836?style=for-the-badge&logo=gmail)](mailto:sunnykumarsingh045@gmail.com)
 
-⭐ **If you found this project helpful, consider giving it a star!**
+ **If you found this project helpful, consider giving it a ⭐ star!**
 
 </div>
